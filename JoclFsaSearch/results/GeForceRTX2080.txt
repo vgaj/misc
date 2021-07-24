@@ -1,0 +1,140 @@
+******************
+*** 5M Real Kernel
+
+CL_DEVICE_NAME: GeForce RTX 2080
+CL_DEVICE_MAX_COMPUTE_UNITS: 46
+CL_DEVICE_MAX_CLOCK_FREQUENCY: 1710
+CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE: 128
+CL_DEVICE_GLOBAL_MEM_CACHE_SIZE: 1507328
+CL_DEVICE_GLOBAL_MEM_SIZE: 8366784512
+CL_DEVICE_LOCAL_MEM_SIZE: 49152
+CL_DEVICE_MAX_MEM_ALLOC_SIZE: 2091696128
+
+Data Size: 5242880
+Chunk Size: 113976
+Context and Command Queue creation took 157 ms
+Program creation took 0 ms
+Program builing took 205 ms
+Kernel creation took 0 ms
+Buffer creation took 3 ms
+Args setting took 1 ms
+Enqueuing took 1 ms
+Execute and result read took 33 ms
+Release took 23 ms
+Total execution time on GPU 61 ms
+* Single threaded search on CPU 28 ms
+
+******************
+*** 5M Null Kernel
+
+Data Size: 5242880
+Chunk Size: 113976
+Context and Command Queue creation took 57 ms
+Program creation took 0 ms
+Program builing took 72 ms
+Kernel creation took 0 ms
+Buffer creation took 1 ms
+Args setting took 0 ms
+Enqueuing took 1 ms
+Execute and result read took 0 ms
+Release took 22 ms
+Total execution time on GPU 24 ms
+
+
+
+*******************
+*** 50M Real Kernel
+
+Data Size: 52428800
+Chunk Size: 1139757
+Context and Command Queue creation took 46 ms
+Program creation took 0 ms
+Program builing took 1 ms
+Kernel creation took 0 ms
+Buffer creation took 36 ms
+Args setting took 0 ms
+Enqueuing took 13 ms
+Execute and result read took 272 ms
+Release took 24 ms
+Total execution time on GPU 346 ms
+* Single threaded search on CPU 198 ms
+
+*******************
+*** 50M Real Kernel - Double chunk count
+
+Data Size: 52428800
+Chunk Size: 569879
+Context and Command Queue creation took 59 ms
+Program creation took 0 ms
+Program builing took 0 ms
+Kernel creation took 0 ms
+Buffer creation took 37 ms
+Args setting took 0 ms
+Enqueuing took 13 ms
+Execute and result read took 120 ms
+Release took 23 ms
+Total execution time on GPU 193 ms
+
+*******************
+*** 50M Real Kernel - 10x chunk count
+
+Data Size: 52428800
+Chunk Size: 113976
+Context and Command Queue creation took 44 ms
+Program creation took 0 ms
+Program builing took 0 ms
+Kernel creation took 0 ms
+Buffer creation took 37 ms
+Args setting took 0 ms
+Enqueuing took 13 ms
+Execute and result read took 26 ms
+Release took 23 ms
+Total execution time on GPU 100 ms
+
+*******************
+*** 50M Real Kernel - 100x chunk count
+
+Data Size: 52428800
+Chunk Size: 11398
+Context and Command Queue creation took 44 ms
+Program creation took 0 ms
+Program builing took 0 ms
+Kernel creation took 0 ms
+Buffer creation took 36 ms
+Args setting took 1 ms
+Enqueuing took 13 ms
+Execute and result read took 19 ms
+Release took 23 ms
+Total execution time on GPU 92 ms
+
+*******************
+*** 50M Real Kernel - 1000x chunk count
+
+Data Size: 52428800
+Chunk Size: 1140
+Context and Command Queue creation took 46 ms
+Program creation took 1 ms
+Program builing took 0 ms
+Kernel creation took 0 ms
+Buffer creation took 36 ms
+Args setting took 0 ms
+Enqueuing took 13 ms
+Execute and result read took 17 ms
+Release took 23 ms
+Total execution time on GPU 90 ms
+
+*******************
+*** 50M Null Kernel
+
+Data Size: 52428800
+Chunk Size: 1139757
+Context and Command Queue creation took 45 ms
+Program creation took 0 ms
+Program builing took 1 ms
+Kernel creation took 0 ms
+Buffer creation took 36 ms
+Args setting took 0 ms
+Enqueuing took 13 ms
+Execute and result read took 0 ms
+Release took 23 ms
+Total execution time on GPU 73 ms
