@@ -6,3 +6,6 @@ This project contains an implementation of Finite State Automata for pattern sea
 
 The purpose of the exercise was to compare the performance of running on the CPU with running on the GPU to try to understand/quantify the performance overhead of tasking the GPU.
 
+
+## ChristmasLights
+This project contains simple Arduino programs that drive my 7 Chistmas lights.  I will upload details of the hardware setup at some point.
