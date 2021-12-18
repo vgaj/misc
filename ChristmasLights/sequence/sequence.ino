@@ -52,49 +52,8 @@ void offOff(int light1, int light2)
   digitalWrite(light2, LOW);  
 }
 
-void loop() 
+void inAndOut()
 {
-  // PART 1
-  
-  // 1 -> 7
-  on(LIGHT_1);
-  offOn(LIGHT_1,LIGHT_2);
-  offOn(LIGHT_2,LIGHT_3);
-  offOn(LIGHT_3,LIGHT_4);
-  offOn(LIGHT_4,LIGHT_5);
-  offOn(LIGHT_5,LIGHT_6);
-  offOn(LIGHT_6,LIGHT_7);
-
-  // 12 <- 67
-  on(LIGHT_6);
-  offOn(LIGHT_7,LIGHT_5);
-  offOn(LIGHT_6,LIGHT_4);
-  offOn(LIGHT_5,LIGHT_3);
-  offOn(LIGHT_4,LIGHT_2);
-  offOn(LIGHT_3,LIGHT_1);
-  
-  // 23 -> 67
-  offOn(LIGHT_1,LIGHT_3);
-  offOn(LIGHT_2,LIGHT_4);
-  offOn(LIGHT_3,LIGHT_5);
-  offOn(LIGHT_4,LIGHT_6);
-  offOn(LIGHT_5,LIGHT_7);
-
-  // 0 <- 7
-  off(LIGHT_6);
-  pause();
-  offOn(LIGHT_7,LIGHT_6);
-  offOn(LIGHT_6,LIGHT_5);
-  offOn(LIGHT_5,LIGHT_4);
-  offOn(LIGHT_4,LIGHT_3);
-  offOn(LIGHT_3,LIGHT_2);
-  offOn(LIGHT_2,LIGHT_1);
-  off(LIGHT_1);
-  pause();
-
-
-  // PART 2
-
   // 17, 26, 35, 4,
   onOn(LIGHT_1, LIGHT_7);
   offOff(LIGHT_1, LIGHT_7);
@@ -113,4 +72,83 @@ void loop()
   onOn(LIGHT_1, LIGHT_7);
   offOff(LIGHT_1, LIGHT_7);
   pause();
+}
+
+void leftToRight()
+{
+    // 1 ... 7
+  on(LIGHT_1);
+  offOn(LIGHT_1,LIGHT_2);
+  offOn(LIGHT_2,LIGHT_3);
+  offOn(LIGHT_3,LIGHT_4);
+  offOn(LIGHT_4,LIGHT_5);
+  offOn(LIGHT_5,LIGHT_6);
+  offOn(LIGHT_6,LIGHT_7);
+  off(LIGHT_7);
+  pause();
+}
+
+void rightToLeft()
+{
+  // 7 ... 1
+  on(LIGHT_7);
+  offOn(LIGHT_7,LIGHT_6);
+  offOn(LIGHT_6,LIGHT_5);
+  offOn(LIGHT_5,LIGHT_4);
+  offOn(LIGHT_4,LIGHT_3);
+  offOn(LIGHT_3,LIGHT_2);
+  offOn(LIGHT_2,LIGHT_1);
+  off(LIGHT_1);
+  pause();
+}
+
+void leftToRightDouble()
+{
+  // 1, 12 ... 67, 7
+  on(LIGHT_1);
+  on(LIGHT_2);
+  offOn(LIGHT_1,LIGHT_3);
+  offOn(LIGHT_2,LIGHT_4);
+  offOn(LIGHT_3,LIGHT_5);
+  offOn(LIGHT_4,LIGHT_6);
+  offOn(LIGHT_5,LIGHT_7);
+  off(LIGHT_6);
+  pause();
+  off(LIGHT_7);
+  pause();
+}
+
+void rightToLeftDouble()
+{
+  // 7, 67 ... 12, 1
+  on(LIGHT_7);
+  on(LIGHT_6);
+  offOn(LIGHT_7,LIGHT_5);
+  offOn(LIGHT_6,LIGHT_4);
+  offOn(LIGHT_5,LIGHT_3);
+  offOn(LIGHT_4,LIGHT_2);
+  offOn(LIGHT_3,LIGHT_1);
+  off(LIGHT_2);
+  pause();
+  off(LIGHT_1);
+  pause();
+}
+
+void loop() 
+{
+  leftToRight();
+  rightToLeft();
+  inAndOut();
+  
+  rightToLeft();
+  leftToRight();
+  inAndOut();
+
+  leftToRightDouble();
+  rightToLeftDouble();
+  inAndOut();
+
+  rightToLeftDouble();
+  leftToRightDouble();
+  inAndOut();
 }
