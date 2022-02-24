@@ -10,7 +10,8 @@ public class PhoneHomeMonitorController
     MonitorService svc;
 
     @GetMapping("/")
-    public String index() {
+    public String index()
+    {
         // TODO: Return data and do some very basic HTML formatting
         return svc.getMsg();
     }

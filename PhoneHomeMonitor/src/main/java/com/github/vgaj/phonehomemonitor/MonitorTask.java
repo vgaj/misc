@@ -12,9 +12,11 @@ public class MonitorTask implements Runnable
     @Override
     public void run()
     {
-        try {
+        try
+        {
             PcapNetworkInterface nif = null;
-            try {
+            try
+            {
                 Optional<PcapNetworkInterface> optInt = Pcaps.findAllDevs().stream()
                         .filter(i -> !i.isLoopBack()
                                 && !i.getAddresses().isEmpty()
@@ -30,7 +32,9 @@ public class MonitorTask implements Runnable
                 nif = optInt.get();
                 data.append("Using " + nif.getName());
                 data.addBreak();
-            } catch (PcapNativeException e) {
+            }
+            catch (PcapNativeException e)
+            {
                 data.append(e.toString());
                 return;
             }
@@ -41,41 +45,26 @@ public class MonitorTask implements Runnable
 
 
             PacketListener listener =
-                    new PacketListener() {
-                        @Override
-                        public void gotPacket(PcapPacket pcapPacket) {
-                            if (pcapPacket.getRawData()[14]>>4 != 4)
-                            {
-                                data.append("Not IPv4");
-                                data.addBreak();
-                                return;
-                            }
-
-                            // TODO Extract method
-                            int sourceStart = 14+12;
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[sourceStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[sourceStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[sourceStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[sourceStart]));
-                            data.append(" -> ");
-                            int destStart = 14+16;
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[destStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[destStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[destStart++]));
-                            data.append(".");
-                            data.append(Byte.toUnsignedInt(pcapPacket.getRawData()[destStart]));
-                            data.append(" (" + pcapPacket.getOriginalLength() + ")");
+                    pcapPacket -> {
+                        PcapPacketHelper pcapHelper = new PcapPacketHelper(pcapPacket);
+                        if (!pcapHelper.isIpv4())
+                        {
+                            data.append("Not IPv4");
                             data.addBreak();
+                            return;
                         }
+
+                        data.append(pcapHelper.getSourceAddress());
+                        data.append(" -> ");
+                        data.append(pcapHelper.getDestAddress());
+                        data.append(" (" + pcapHelper.getLength() + ")");
+                        data.addBreak();
                     };
             handle.loop(10, listener);
             handle.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
             data.append(e.toString());
         }
