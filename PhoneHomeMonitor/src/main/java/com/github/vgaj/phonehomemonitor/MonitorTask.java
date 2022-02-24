@@ -26,16 +26,15 @@ public class MonitorTask implements Runnable
                         .findFirst();
                 if (optInt.isEmpty())
                 {
-                    data.append("Could not find NIC");
+                    data.addMessage("Could not find NIC");
                     return;
                 }
                 nif = optInt.get();
-                data.append("Using " + nif.getName());
-                data.addBreak();
+                data.addMessage("Using " + nif.getName());
             }
             catch (PcapNativeException e)
             {
-                data.append(e.toString());
+                data.addMessage(e.toString());
                 return;
             }
 
@@ -49,24 +48,19 @@ public class MonitorTask implements Runnable
                         PcapPacketHelper pcapHelper = new PcapPacketHelper(pcapPacket);
                         if (!pcapHelper.isIpv4())
                         {
-                            data.append("Not IPv4");
-                            data.addBreak();
+                            data.addMessage("Not IPv4");
                             return;
                         }
-
-                        data.append(pcapHelper.getSourceAddress());
-                        data.append(" -> ");
-                        data.append(pcapHelper.getDestAddress());
-                        data.append(" (" + pcapHelper.getLength() + ")");
-                        data.addBreak();
+                        data.addMessage(pcapHelper.getSourceAddress() + " -> " + pcapHelper.getDestAddress() + " (" + pcapHelper.getLength() + ")");
                     };
-            handle.loop(10, listener);
+            // TODO: Make this continuous
+            handle.loop(10000, listener);
             handle.close();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            data.append(e.toString());
+            data.addMessage(e.toString());
         }
 
     }

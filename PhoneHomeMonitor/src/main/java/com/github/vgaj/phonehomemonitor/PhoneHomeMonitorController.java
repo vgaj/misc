@@ -12,8 +12,6 @@ public class PhoneHomeMonitorController
     @GetMapping("/")
     public String index()
     {
-        // TODO: Return data and do some very basic HTML formatting
         return svc.getMsg();
     }
-
 }
