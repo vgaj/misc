@@ -20,6 +20,7 @@ public class MonitorService
 
     public String getMsg()
     {
+        // TODO: Format hourly generate XML report to HTML
         return monitorTask.getMsg();
     }
 }

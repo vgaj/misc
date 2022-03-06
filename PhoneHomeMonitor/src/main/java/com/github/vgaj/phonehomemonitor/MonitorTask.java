@@ -8,6 +8,7 @@ import static org.pcap4j.core.PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
 
 public class MonitorTask implements Runnable
 {
+    boolean DEBUG_LOG = true;
     private MonitorData data = new MonitorData();
     @Override
     public void run()
@@ -51,10 +52,14 @@ public class MonitorTask implements Runnable
                             data.addMessage("Not IPv4");
                             return;
                         }
-                        data.addMessage(pcapHelper.getSourceAddress() + " -> " + pcapHelper.getDestAddress() + " (" + pcapHelper.getLength() + ")");
+                        // TODO: Queue on a Disruptor to avoid blocking the caller for too long
+                        if (DEBUG_LOG)
+                        {
+                            data.addMessage(pcapHelper.getSourceHost().toAddressString() + " -> " + pcapHelper.getDestHost().toAddressString() + " (" + pcapHelper.getLength() + " bytes)");
+                        }
+                        data.addData(pcapHelper.getDestHost(), pcapHelper.getLength());
                     };
-            // TODO: Make this continuous
-            handle.loop(10000, listener);
+            handle.loop(-1, listener);
             handle.close();
         }
         catch (Exception e)

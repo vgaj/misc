@@ -15,27 +15,24 @@ public class PcapPacketHelper
         return (pcapPacket.getRawData()[14]>>4 == 4);
     }
 
-    public String getSourceAddress()
+    public Host getSourceHost()
     {
-        return getAddressAtOffset(14+12);
+        return getHostAtOffset(14+12);
     }
-    public String getDestAddress()
+    public Host getDestHost()
     {
-        return getAddressAtOffset(14+16);
+        return getHostAtOffset(14+16);
     }
-    public String getAddressAtOffset(int offset)
+    private Host getHostAtOffset(int offset)
     {
-        StringBuilder ip = new StringBuilder();
-        ip.append(Byte.toUnsignedInt(pcapPacket.getRawData()[offset++]));
-        ip.append(".");
-        ip.append(Byte.toUnsignedInt(pcapPacket.getRawData()[offset++]));
-        ip.append(".");
-        ip.append(Byte.toUnsignedInt(pcapPacket.getRawData()[offset++]));
-        ip.append(".");
-        ip.append(Byte.toUnsignedInt(pcapPacket.getRawData()[offset]));
-        return ip.toString();
+        // Want data to be stored on the stack
+        byte octet1,octet2,octet3,octet4;
+        octet1 = pcapPacket.getRawData()[offset++];
+        octet2 = pcapPacket.getRawData()[offset++];
+        octet3 = pcapPacket.getRawData()[offset++];
+        octet4 = pcapPacket.getRawData()[offset++];
+        return new Host(octet1,octet2,octet3,octet4);
     }
-
     public int getLength()
     {
         return pcapPacket.getOriginalLength();
