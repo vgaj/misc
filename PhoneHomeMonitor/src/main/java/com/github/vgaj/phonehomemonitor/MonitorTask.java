@@ -1,5 +1,7 @@
 package com.github.vgaj.phonehomemonitor;
 
+import com.github.vgaj.phonehomemonitor.data.MonitorData;
+import com.github.vgaj.phonehomemonitor.util.PcapPacketHelper;
 import org.pcap4j.core.*;
 
 import java.util.Optional;
@@ -9,7 +11,13 @@ import static org.pcap4j.core.PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
 public class MonitorTask implements Runnable
 {
     boolean DEBUG_LOG = true;
-    private MonitorData data = new MonitorData();
+    private final MonitorData data;
+
+    public MonitorTask(MonitorData data)
+    {
+        this.data = data;
+    }
+
     @Override
     public void run()
     {
@@ -55,7 +63,7 @@ public class MonitorTask implements Runnable
                         // TODO: Queue on a Disruptor to avoid blocking the caller for too long
                         if (DEBUG_LOG)
                         {
-                            data.addMessage(pcapHelper.getSourceHost().toAddressString() + " -> " + pcapHelper.getDestHost().toAddressString() + " (" + pcapHelper.getLength() + " bytes)");
+                            data.addMessage(pcapHelper.getSourceHost().getAddressString() + " -> " + pcapHelper.getDestHost().getAddressString() + " (" + pcapHelper.getLength() + " bytes)");
                         }
                         data.addData(pcapHelper.getDestHost(), pcapHelper.getLength());
                     };
@@ -73,4 +81,5 @@ public class MonitorTask implements Runnable
     {
         return data.getData();
     }
+
 }

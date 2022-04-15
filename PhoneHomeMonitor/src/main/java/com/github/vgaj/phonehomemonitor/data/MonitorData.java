@@ -1,12 +1,16 @@
-package com.github.vgaj.phonehomemonitor;
+package com.github.vgaj.phonehomemonitor.data;
+
+
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class MonitorData
 {
     // Stats for each host
-    private Map<Host, Integer> data = new HashMap<>();
+    private final Map<RemoteAddress, DataForAddress> data = new HashMap<>();
 
     // Maximum number of messages to store
     private final int MSG_COUNT = 10;
@@ -15,7 +19,7 @@ public class MonitorData
     private int msgIndex = 0;
 
     // The ring buffer of messages
-    private String[] messages = new String[MSG_COUNT];
+    private final String[] messages = new String[MSG_COUNT];
 
     public void addMessage(String msg)
     {
@@ -28,6 +32,12 @@ public class MonitorData
         return (i == (MSG_COUNT - 1) ? 0 : i+1);
     }
 
+    public void populateHostNames()
+    {
+        // TODO: Is this thread safe
+        data.keySet().forEach(k -> System.out.println(k.lookupAndGetHostString()));
+    }
+
     public synchronized String getData()
     {
         StringBuffer sb = new StringBuffer();
@@ -36,8 +46,7 @@ public class MonitorData
         sb.append("<h3>Data sent to each host</h3>");
         data.forEach( (k,v) ->
         {
-            // TODO: Take lookup outside the synchronized block
-            sb.append(k.toHostString() + " (" + v + " bytes)" + "<br/>");
+            sb.append(k.getHostString() + " (" + v.getTotalBytes() + " bytes)" + "<br/>");
         });
 
         // The messages
@@ -56,16 +65,16 @@ public class MonitorData
     }
 
     // TODO: Add raw data and create lookup by address
-    public synchronized void addData(Host host, int length)
+    public synchronized void addData(RemoteAddress host, int length)
     {
         // TODO: Needs to be thread safe
         if (data.containsKey(host))
         {
-            data.replace(host, length + data.get(host));
+            data.get(host).addBytes(length);
         }
         else
         {
-            data.put(host, length);
+            data.put(host, new DataForAddress(length));
         }
     }
 
