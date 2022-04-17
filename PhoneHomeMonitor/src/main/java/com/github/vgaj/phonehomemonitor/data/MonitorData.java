@@ -1,14 +1,17 @@
 package com.github.vgaj.phonehomemonitor.data;
 
-
+import com.github.vgaj.phonehomemonitor.logic.DataAnalyser;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 public class MonitorData
 {
+    // TODO: Periodic cleanup of uninteresting data
+
     // Stats for each host
     private final Map<RemoteAddress, DataForAddress> data = new HashMap<>();
 
@@ -35,23 +38,39 @@ public class MonitorData
     public void populateHostNames()
     {
         // TODO: Is this thread safe
-        data.keySet().forEach(k -> System.out.println(k.lookupAndGetHostString()));
+        data.keySet().forEach(k -> k.lookupAndGetHostString());
     }
 
-    public synchronized String getData()
+    public List<Map.Entry<Long, Integer>> getPerMinuteData(RemoteAddress address)
+    {
+        return data.get(address).getPerMinuteData();
+    }
+
+    // TODO: refactor out
+    public synchronized String getDisplayContent()
     {
         StringBuffer sb = new StringBuffer();
 
         // The data
         sb.append("<h3>Data sent to each host</h3>");
+        // TODO: Maybe sort by reverse domain name
         data.forEach( (k,v) ->
         {
-            sb.append(k.getHostString() + " (" + v.getTotalBytes() + " bytes)" + "<br/>");
+            // TODO: Maybe to 10 by total bytes and by frequency (ordered)
+            sb.append(k.getHostString() + " (" + v.getTotalBytes() + " total bytes, " + v.getMinuteBlockCount() + " times)" + "<br/>");
+
+            Map<Integer,Integer> requestsOfSameSize = new DataAnalyser(this).getRequestsOfSameSize(k);
+            if (requestsOfSameSize.size() > 0)
+            {
+                requestsOfSameSize.entrySet().forEach(e -> sb.append("&nbsp;&nbsp;").append(e.getKey()).append(" bytes ").append(e.getValue()).append(" times<br/>"));
+                //sb.append(v.getPerMinuteDataForDisplay());
+            }
         });
 
         // The messages
         sb.append("<br/><h3>Last few messages</h3>");
         int i = msgIndex;
+        // TODO: Correct order
         for (int x = 0; x < MSG_COUNT; x++)
         {
             if (messages[i] != null)
@@ -65,16 +84,16 @@ public class MonitorData
     }
 
     // TODO: Add raw data and create lookup by address
-    public synchronized void addData(RemoteAddress host, int length)
+    public synchronized void addData(RemoteAddress host, int length, long epochMinute)
     {
         // TODO: Needs to be thread safe
         if (data.containsKey(host))
         {
-            data.get(host).addBytes(length);
+            data.get(host).addBytes(length, epochMinute);
         }
         else
         {
-            data.put(host, new DataForAddress(length));
+            data.put(host, new DataForAddress(length, epochMinute));
         }
     }
 

@@ -3,6 +3,9 @@ package com.github.vgaj.phonehomemonitor.util;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
 import org.pcap4j.core.PcapPacket;
 
+/**
+ * Functionality to parse pcap data
+ */
 public class PcapPacketHelper
 {
     private final PcapPacket pcapPacket;
@@ -37,5 +40,10 @@ public class PcapPacketHelper
     public int getLength()
     {
         return pcapPacket.getOriginalLength();
+    }
+
+    public long getEpochMinute()
+    {
+        return pcapPacket.getTimestamp().getEpochSecond() / 60;
     }
 }

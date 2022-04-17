@@ -1,4 +1,4 @@
-package com.github.vgaj.phonehomemonitor;
+package com.github.vgaj.phonehomemonitor.logic;
 
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.util.PcapPacketHelper;
@@ -8,14 +8,17 @@ import java.util.Optional;
 
 import static org.pcap4j.core.PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
 
+/**
+ * Retrieves captured data from Pcap4j
+ */
 public class MonitorTask implements Runnable
 {
     boolean DEBUG_LOG = true;
-    private final MonitorData data;
+    private final MonitorData monitorData;
 
-    public MonitorTask(MonitorData data)
+    public MonitorTask(MonitorData monitorData)
     {
-        this.data = data;
+        this.monitorData = monitorData;
     }
 
     @Override
@@ -35,19 +38,21 @@ public class MonitorTask implements Runnable
                         .findFirst();
                 if (optInt.isEmpty())
                 {
-                    data.addMessage("Could not find NIC");
+                    monitorData.addMessage("Could not find NIC");
                     return;
                 }
                 nif = optInt.get();
-                data.addMessage("Using " + nif.getName());
+                monitorData.addMessage("Using " + nif.getName());
             }
             catch (PcapNativeException e)
             {
-                data.addMessage(e.toString());
+                monitorData.addMessage(e.toString());
                 return;
             }
 
             PcapHandle handle = nif.openLive(65536, PROMISCUOUS, 100);
+
+            // TODO: Make configurable
             String filter = "tcp dst port 80 or 443";
             handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
 
@@ -57,15 +62,15 @@ public class MonitorTask implements Runnable
                         PcapPacketHelper pcapHelper = new PcapPacketHelper(pcapPacket);
                         if (!pcapHelper.isIpv4())
                         {
-                            data.addMessage("Not IPv4");
+                            monitorData.addMessage("Not IPv4");
                             return;
                         }
                         // TODO: Queue on a Disruptor to avoid blocking the caller for too long
                         if (DEBUG_LOG)
                         {
-                            data.addMessage(pcapHelper.getSourceHost().getAddressString() + " -> " + pcapHelper.getDestHost().getAddressString() + " (" + pcapHelper.getLength() + " bytes)");
+                            monitorData.addMessage(pcapHelper.getSourceHost().getAddressString() + " -> " + pcapHelper.getDestHost().getAddressString() + " (" + pcapHelper.getLength() + " bytes)");
                         }
-                        data.addData(pcapHelper.getDestHost(), pcapHelper.getLength());
+                        monitorData.addData(pcapHelper.getDestHost(), pcapHelper.getLength(), pcapHelper.getEpochMinute());
                     };
             handle.loop(-1, listener);
             handle.close();
@@ -73,13 +78,7 @@ public class MonitorTask implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            data.addMessage(e.toString());
+            monitorData.addMessage(e.toString());
         }
-
     }
-    public String getMsg()
-    {
-        return data.getData();
-    }
-
 }

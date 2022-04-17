@@ -1,4 +1,4 @@
-package com.github.vgaj.phonehomemonitor;
+package com.github.vgaj.phonehomemonitor.logic;
 
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +21,11 @@ public class MonitorService
     @PostConstruct
     public void init()
     {
+        // TODO: Add save a reload on restart
         // TODO: Can this be turned into a Spring Component?
         monitorTask = new MonitorTask(monitorData);
         monitorThread = new Thread(monitorTask);
         monitorThread.start();
         addressLookupTask.setData(monitorData);
-    }
-
-    public String getMsg()
-    {
-        // TODO: Periodically generate XML report to a file and format it to HTML
-        return monitorTask.getMsg();
     }
 }
