@@ -2,12 +2,17 @@ package com.github.vgaj.phonehomemonitor.data;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
-public class RemoteAddress
+public class RemoteAddress implements Comparable
 {
+    // TODO: Store in array
     private final byte octet1,octet2,octet3,octet4;
     private String hostname = null;
+    private String reverseHostname = null;
 
     public RemoteAddress(byte octet1, byte octet2, byte octet3, byte octet4)
     {
@@ -42,6 +47,13 @@ public class RemoteAddress
             {
                 InetAddress addr = InetAddress.getByAddress(new byte[]{octet1, octet2, octet3, octet4});
                 hostname = addr.getHostName();
+                if (hostname != null)
+                {
+                    List<String> parts = Arrays.asList(hostname.split("\\."));
+                    Collections.reverse(parts);
+                    reverseHostname = String.join(".", parts);
+                }
+
                 hostname += "/";
             }
             catch (UnknownHostException e)
@@ -69,4 +81,21 @@ public class RemoteAddress
         return Objects.hash(octet1, octet2, octet3, octet4);
     }
 
+    @Override
+    public int compareTo(Object o)
+    {
+        if (this == o || o == null || getClass() != o.getClass())
+        {
+            return 0;
+        }
+        RemoteAddress other = (RemoteAddress) o;
+        if (this.reverseHostname == null || other.reverseHostname == null)
+        {
+            return 0;
+        }
+        else
+        {
+            return this.reverseHostname.compareTo(other.reverseHostname);
+        }
+    }
 }

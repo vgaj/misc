@@ -3,9 +3,7 @@ package com.github.vgaj.phonehomemonitor.data;
 import com.github.vgaj.phonehomemonitor.logic.DataAnalyser;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class MonitorData
@@ -53,16 +51,32 @@ public class MonitorData
 
         // The data
         sb.append("<h3>Data sent to each host</h3>");
-        // TODO: Maybe sort by reverse domain name
-        data.forEach( (k,v) ->
-        {
-            // TODO: Maybe to 10 by total bytes and by frequency (ordered)
-            sb.append(k.getHostString() + " (" + v.getTotalBytes() + " total bytes, " + v.getMinuteBlockCount() + " times)" + "<br/>");
+        ArrayList<Map.Entry<RemoteAddress, DataForAddress>> entries = new ArrayList<>();
+        data.entrySet().forEach(e -> entries.add(e));
+        Collections.sort(entries, new Comparator<Map.Entry<RemoteAddress, DataForAddress>>() {
+            @Override
+            public int compare(Map.Entry<RemoteAddress, DataForAddress> e1, Map.Entry<RemoteAddress, DataForAddress> e2)
+            {
+                if (e1.getKey() == null || e2.getKey() == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return e1.getKey().compareTo(e2.getKey());
+                }
+            }
+        });
 
-            Map<Integer,Integer> requestsOfSameSize = new DataAnalyser(this).getRequestsOfSameSize(k);
+        entries.forEach( e ->
+        {
+            // TODO: Maybe top 10 by total bytes and by frequency (ordered)
+            sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
+
+            Map<Integer,Integer> requestsOfSameSize = new DataAnalyser(this).getRequestsOfSameSize(e.getKey());
             if (requestsOfSameSize.size() > 0)
             {
-                requestsOfSameSize.entrySet().forEach(e -> sb.append("&nbsp;&nbsp;").append(e.getKey()).append(" bytes ").append(e.getValue()).append(" times<br/>"));
+                requestsOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
                 //sb.append(v.getPerMinuteDataForDisplay());
             }
         });
@@ -83,7 +97,6 @@ public class MonitorData
         return sb.toString();
     }
 
-    // TODO: Add raw data and create lookup by address
     public synchronized void addData(RemoteAddress host, int length, long epochMinute)
     {
         // TODO: Needs to be thread safe
@@ -96,7 +109,4 @@ public class MonitorData
             data.put(host, new DataForAddress(length, epochMinute));
         }
     }
-
-    // TODO: Hourly generate XML report with domain names looked up
-
 }

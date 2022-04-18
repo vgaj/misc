@@ -21,7 +21,7 @@ public class MonitorService
     @PostConstruct
     public void init()
     {
-        // TODO: Add save a reload on restart
+        // TODO: Add save and reload on restart
         // TODO: Can this be turned into a Spring Component?
         monitorTask = new MonitorTask(monitorData);
         monitorThread = new Thread(monitorTask);
