@@ -2,6 +2,7 @@ package com.github.vgaj.phonehomemonitor.logic;
 
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -12,11 +13,8 @@ import java.util.*;
 @Component
 public class DataAnalyser
 {
+    @Autowired
     private MonitorData monitorData;
-    public DataAnalyser(MonitorData monitorData)
-    {
-        this.monitorData = monitorData;
-    }
 
     public Map<Integer,Integer> getRequestsOfSameSize(RemoteAddress address)
     {

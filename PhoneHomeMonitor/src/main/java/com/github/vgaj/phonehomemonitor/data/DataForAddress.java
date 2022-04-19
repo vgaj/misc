@@ -1,19 +1,15 @@
 package com.github.vgaj.phonehomemonitor.data;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class DataForAddress
 {
     private int totalBytes = 0;
 
     // Number of bytes in minute blocks
-    private final Map<Long, Integer> byteCountPerMinute = new HashMap<>();
-
-
-    public DataForAddress(int totalBytes, long epochMinute)
-    {
-        addBytes(totalBytes,epochMinute);
-    }
+    private final ConcurrentMap<Long, Integer> byteCountPerMinute = new ConcurrentHashMap<>();
 
     public void addBytes(int count, long epochMinute)
     {
@@ -42,5 +38,4 @@ public class DataForAddress
         byteCountPerMinute.entrySet().forEach(e -> sb.append(e.getKey()).append(':').append(e.getValue()).append("<br/>").append(System.lineSeparator()));
         return sb.toString();
     }
-
 }
