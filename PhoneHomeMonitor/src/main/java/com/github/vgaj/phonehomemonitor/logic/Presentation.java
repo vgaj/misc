@@ -35,13 +35,13 @@ public class Presentation
             @Override
             public int compare(Map.Entry<RemoteAddress, DataForAddress> e1, Map.Entry<RemoteAddress, DataForAddress> e2)
             {
-                if (e1.getKey() == null || e2.getKey() == null)
+                if (e1.getKey() == null || e1.getKey().getReverseHostname() == null || e2.getKey() == null || e2.getKey().getReverseHostname() == null)
                 {
                     return 0;
                 }
                 else
                 {
-                    return e1.getKey().compareTo(e2.getKey());
+                    return e1.getKey().getReverseHostname().compareTo(e2.getKey().getReverseHostname());
                 }
             }
         });

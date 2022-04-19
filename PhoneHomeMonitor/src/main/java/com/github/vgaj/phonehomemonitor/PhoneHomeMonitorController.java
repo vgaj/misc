@@ -1,5 +1,4 @@
 package com.github.vgaj.phonehomemonitor;
-import com.github.vgaj.phonehomemonitor.logic.MonitorTask;
 import com.github.vgaj.phonehomemonitor.logic.Presentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +14,13 @@ public class PhoneHomeMonitorController
     public String index()
     {
         // TODO: Periodically generate XML report to a file and format it to HTML to avoid running a web app as root
-        return presentation.getDisplayContent();
+        try
+        {
+            return presentation.getDisplayContent();
+        }
+        catch (Exception e)
+        {
+            return e.toString();
+        }
     }
 }

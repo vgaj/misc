@@ -29,6 +29,8 @@ public class MonitorTask implements Runnable
 
     private Thread monitorThread;
 
+    private PcapHandle handle;
+
 
     @PostConstruct
     public void start()
@@ -40,8 +42,15 @@ public class MonitorTask implements Runnable
     @PreDestroy
     public void stop()
     {
-        // TODO: wait until stopped
-        monitorThread.interrupt();
+        try
+        {
+            handle.breakLoop();
+            monitorThread.join(5000);
+        }
+        catch (NotOpenException | InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -73,7 +82,7 @@ public class MonitorTask implements Runnable
                 return;
             }
 
-            PcapHandle handle = nif.openLive(65536, PROMISCUOUS, 100);
+            handle = nif.openLive(65536, PROMISCUOUS, 100);
 
             // TODO: Make configurable
             String filter = "tcp dst port 80 or 443";
@@ -96,7 +105,10 @@ public class MonitorTask implements Runnable
                         monitorData.addData(pcapHelper.getDestHost(), pcapHelper.getLength(), pcapHelper.getEpochMinute());
                     };
             handle.loop(-1, listener);
-            handle.close();
+            handle.close(); // This won't normally get called
+        }
+        catch (InterruptedException e)
+        {
         }
         catch (Exception e)
         {

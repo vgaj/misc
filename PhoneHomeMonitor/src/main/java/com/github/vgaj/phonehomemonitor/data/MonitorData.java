@@ -1,5 +1,6 @@
 package com.github.vgaj.phonehomemonitor.data;
 
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -24,9 +25,8 @@ public class MonitorData
         return data.get(address).getPerMinuteData();
     }
 
-    public void addData(RemoteAddress host, int length, long epochMinute)
+    public void addData(@NonNull RemoteAddress host, int length, long epochMinute)
     {
-        // TODO: Requires host is not null
         data.putIfAbsent(host, new DataForAddress());
         data.get(host).addBytes(length, epochMinute);
     }
