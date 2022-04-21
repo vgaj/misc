@@ -17,6 +17,7 @@ public class RemoteAddress
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private final byte[] octets = new byte[4];
     private String hostname = null;
+    private boolean lookupAttempted = false;
 
     @Getter
     private String reverseHostname = null;
@@ -55,8 +56,9 @@ public class RemoteAddress
     public Optional<String> lookupHostStringIfRequired()
     {
         Optional<String> result = Optional.empty();
-        if (hostname == null)
+        if (!lookupAttempted)
         {
+            lookupAttempted = true;
             try
             {
                 InetAddress addr = InetAddress.getByAddress(octets);

@@ -52,6 +52,9 @@ public class DataAnalyser
             if (lastRequest != -1)
             {
                 long interval = e.getKey() - lastRequest;
+                // TODO: Keep track of number of times at this minimum
+                // TODO: Maybe work out the number of times at each frequency
+                // TODO: Calculate average (or most common interval)
                 if (minimumInterval.isEmpty() || interval < minimumInterval.get())
                 {
                     minimumInterval = Optional.of(interval);

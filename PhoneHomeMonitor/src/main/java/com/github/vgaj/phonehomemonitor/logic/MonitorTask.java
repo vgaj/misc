@@ -5,6 +5,7 @@ import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.util.PcapPacketHelper;
 import org.pcap4j.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -52,6 +53,9 @@ public class MonitorTask implements Runnable
         }
     }
 
+    @Value("${phm.filter}")
+    private String filter;
+
     @Override
     public void run()
     {
@@ -83,8 +87,7 @@ public class MonitorTask implements Runnable
 
             handle = nif.openLive(65536, PROMISCUOUS, 100);
 
-            // TODO: Make configurable
-            String filter = "tcp dst port 80 or 443";
+            messageData.addMessage("Using filter: " + filter);
             handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
 
             PacketListener listener =

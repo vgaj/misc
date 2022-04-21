@@ -5,6 +5,7 @@ import com.github.vgaj.phonehomemonitor.data.MessageData;
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -20,6 +21,22 @@ public class Presentation
 
     @Autowired
     private DataAnalyser dataAnalyser;
+
+    @Value("${phm.minimum.interval.minutes")
+    private String minIntervalMinutesString;
+
+    // TODO: Move to YAML configuration
+    private int minIntervalMinutes()
+    {
+        try
+        {
+            return Integer.parseInt(minIntervalMinutesString);
+        }
+        catch (Exception e)
+        {
+            return 1;
+        }
+    }
 
     public String getDisplayContent()
     {
@@ -45,18 +62,17 @@ public class Presentation
 
         entries.forEach( e ->
         {
-            // TODO: Maybe top 10 by total bytes and by frequency (ordered)
-
             boolean found = false;
-            //sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
 
-            // Note the 2 calls below will sort both sort this list
+            // TODO: Configuration of exactly what to show
+
+            // Note that both calls below will sort this list
             List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(e.getKey());
 
             Optional<Long> minInterval = dataAnalyser.minimumIntervalBetweenData(dataForAddress);
-            if (minInterval.isPresent() && minInterval.get() > 1)
+            if (minInterval.isPresent() && minInterval.get() > minIntervalMinutes())
             {
-                sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
+                populateHostRow(sb, e);
                 found = true;
                 sb.append("&nbsp;&nbsp; Minimum interval between data: ").append(minInterval.get()).append("<br/>");
             }
@@ -66,7 +82,7 @@ public class Presentation
             {
                 if (!found)
                 {
-                    sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
+                    populateHostRow(sb, e);
                 }
                 found = true;
                 dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
@@ -82,5 +98,10 @@ public class Presentation
         sb.append("<br/><h3>Last few messages</h3>");
         messageData.getMessages().stream().forEach(m -> sb.append(m).append("<br/>"));
         return sb.toString();
+    }
+
+    private void populateHostRow(StringBuffer sb, Map.Entry<RemoteAddress, DataForAddress> e)
+    {
+        sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
     }
 }
