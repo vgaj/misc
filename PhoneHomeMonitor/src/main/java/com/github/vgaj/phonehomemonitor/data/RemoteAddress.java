@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class RemoteAddress
 {
@@ -46,8 +47,14 @@ public class RemoteAddress
     {
         return (hostname != null) ? hostname : getAddressString();
     }
-     public String lookupAndGetHostString()
-     {
+
+    /**
+     * If the IP address has not previously been looked up then it is looked up.
+     * @return If it is newly looked up then the value is returned
+     */
+    public Optional<String> lookupHostStringIfRequired()
+    {
+        Optional<String> result = Optional.empty();
         if (hostname == null)
         {
             try
@@ -56,6 +63,7 @@ public class RemoteAddress
                 hostname = addr.getHostName();
                 if (hostname != null)
                 {
+                    result = Optional.of(hostname);
                     List<String> parts = Arrays.asList(hostname.split("\\."));
                     Collections.reverse(parts);
                     reverseHostname = String.join(".", parts);
@@ -69,7 +77,7 @@ public class RemoteAddress
             }
             hostname += getAddressString();
         }
-        return hostname;
+        return result;
     }
 
     @Override

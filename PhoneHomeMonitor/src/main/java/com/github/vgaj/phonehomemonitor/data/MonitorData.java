@@ -1,6 +1,7 @@
 package com.github.vgaj.phonehomemonitor.data;
 
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -12,12 +13,21 @@ public class MonitorData
 {
     // TODO: Periodic cleanup of uninteresting data
 
+    @Autowired
+    MessageData messageData;
+
     // Stats for each host
     private final ConcurrentMap<RemoteAddress, DataForAddress> data = new ConcurrentHashMap<>();
 
     public void populateHostNames()
     {
-        data.keySet().forEach(k -> k.lookupAndGetHostString());
+        data.keySet().forEach( k -> {
+            Optional<String> result = k.lookupHostStringIfRequired();
+            if (result.isPresent())
+            {
+                messageData.addMessage("New host: " + result.get());
+            }
+        });
     }
 
     public void addData(@NonNull RemoteAddress host, int length, long epochMinute)

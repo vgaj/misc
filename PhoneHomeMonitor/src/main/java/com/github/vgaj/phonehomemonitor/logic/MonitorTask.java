@@ -19,7 +19,7 @@ import static org.pcap4j.core.PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
 @Component
 public class MonitorTask implements Runnable
 {
-    boolean DEBUG_LOG = true;
+    boolean DEBUG_LOG = false;
 
     @Autowired
     private MonitorData monitorData;
@@ -30,7 +30,6 @@ public class MonitorTask implements Runnable
     private Thread monitorThread;
 
     private PcapHandle handle;
-
 
     @PostConstruct
     public void start()
@@ -87,7 +86,6 @@ public class MonitorTask implements Runnable
             // TODO: Make configurable
             String filter = "tcp dst port 80 or 443";
             handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
-
 
             PacketListener listener =
                     pcapPacket -> {

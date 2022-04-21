@@ -1,5 +1,7 @@
 package com.github.vgaj.phonehomemonitor.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.List;
 public class MessageData
 {
     // TODO: Save data and reload on restart
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Maximum number of messages to store
     private final int MSG_COUNT = 10;
@@ -21,6 +25,7 @@ public class MessageData
 
     public void addMessage(String msg)
     {
+        logger.info(msg);
         messages[msgIndex] = msg;
         msgIndex = getNext(msgIndex);
     }
