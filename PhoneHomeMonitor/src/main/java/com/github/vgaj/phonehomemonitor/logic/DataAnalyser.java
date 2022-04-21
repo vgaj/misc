@@ -1,8 +1,5 @@
 package com.github.vgaj.phonehomemonitor.logic;
 
-import com.github.vgaj.phonehomemonitor.data.MonitorData;
-import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -13,15 +10,12 @@ import java.util.*;
 @Component
 public class DataAnalyser
 {
-    @Autowired
-    private MonitorData monitorData;
-
-    public Map<Integer,Integer> getRequestsOfSameSize(RemoteAddress address)
+    public Map<Integer,Integer> getDataOfSameSize(List<Map.Entry<Long, Integer>> dataForAddress)
     {
         Map<Integer,Integer> results = new HashMap<>();
 
-        List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getPerMinuteData(address);
-        Collections.sort(dataForAddress, new Comparator<Map.Entry<Long, Integer>>() {
+        Collections.sort(dataForAddress, new Comparator<Map.Entry<Long, Integer>>()
+        {
             @Override
             public int compare(Map.Entry<Long, Integer> e1, Map.Entry<Long, Integer> e2) {
                 return e1.getValue().compareTo(e2.getValue());
@@ -38,5 +32,33 @@ public class DataAnalyser
             lastByteCount = e.getValue();
         }
         return results;
+    }
+
+    public Optional<Long> minimumIntervalBetweenData(List<Map.Entry<Long, Integer>> dataForAddress)
+    {
+        // TODO: Make a copy of the list.  Not strictly necessary but more correct.
+        Collections.sort(dataForAddress, new Comparator<Map.Entry<Long, Integer>>()
+        {
+            @Override
+            public int compare(Map.Entry<Long, Integer> e1, Map.Entry<Long, Integer> e2) {
+                return e1.getKey().compareTo(e2.getKey());
+            }
+        });
+        Optional<Long> minimumInterval = Optional.empty();
+        long lastRequest = -1;
+
+        for (var e : dataForAddress)
+        {
+            if (lastRequest != -1)
+            {
+                long interval = e.getKey() - lastRequest;
+                if (minimumInterval.isEmpty() || interval < minimumInterval.get())
+                {
+                    minimumInterval = Optional.of(interval);
+                }
+            }
+            lastRequest = e.getKey();
+        }
+        return minimumInterval;
     }
 }

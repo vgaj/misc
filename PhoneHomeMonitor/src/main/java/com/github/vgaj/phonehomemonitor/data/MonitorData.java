@@ -20,18 +20,21 @@ public class MonitorData
         data.keySet().forEach(k -> k.lookupAndGetHostString());
     }
 
-    public List<Map.Entry<Long, Integer>> getPerMinuteData(RemoteAddress address)
-    {
-        return data.get(address).getPerMinuteData();
-    }
-
     public void addData(@NonNull RemoteAddress host, int length, long epochMinute)
     {
         data.putIfAbsent(host, new DataForAddress());
         data.get(host).addBytes(length, epochMinute);
     }
 
-    public ArrayList<Map.Entry<RemoteAddress, DataForAddress>> getRawData()
+    public ArrayList<Map.Entry<Long, Integer>> getCopyOfPerMinuteData(RemoteAddress address)
+    {
+        ArrayList<Map.Entry<Long, Integer>> entries = new ArrayList<>();
+        data.get(address).getPerMinuteData().forEach(e -> entries.add(e));
+        return entries;
+    }
+
+
+    public ArrayList<Map.Entry<RemoteAddress, DataForAddress>> getCopyOfRawData()
     {
         ArrayList<Map.Entry<RemoteAddress, DataForAddress>> entries = new ArrayList<>();
         data.entrySet().forEach(e -> entries.add(e));
