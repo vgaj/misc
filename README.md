@@ -9,3 +9,8 @@ The purpose of the exercise was to compare the performance of running on the CPU
 
 ## Arduino Christmas Lights (ChristmasLights)
 This project contains simple Arduino programs that drive my 7 Chistmas lights.  I will upload details of the hardware setup at some point.
+
+
+## Phone Home Monitor
+Monitors a NIC in promiscuous mode to identify if something is "Phoning Phone" to check for updates etc.
+
