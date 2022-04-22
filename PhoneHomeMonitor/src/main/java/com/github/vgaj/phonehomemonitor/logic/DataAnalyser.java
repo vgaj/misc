@@ -1,7 +1,6 @@
 package com.github.vgaj.phonehomemonitor.logic;
 
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 
 /**

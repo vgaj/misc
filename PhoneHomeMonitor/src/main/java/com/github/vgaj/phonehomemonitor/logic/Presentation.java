@@ -22,21 +22,9 @@ public class Presentation
     @Autowired
     private DataAnalyser dataAnalyser;
 
-    @Value("${phm.minimum.interval.minutes")
-    private String minIntervalMinutesString;
-
-    // TODO: Move to YAML configuration
-    private int minIntervalMinutes()
-    {
-        try
-        {
-            return Integer.parseInt(minIntervalMinutesString);
-        }
-        catch (Exception e)
-        {
-            return 1;
-        }
-    }
+    // TODO: Move to YAML configuration?
+    @Value("${phm.minimum.interval.minutes}")
+    private Integer minIntervalMinutes;
 
     public String getDisplayContent()
     {
@@ -70,7 +58,7 @@ public class Presentation
             List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(e.getKey());
 
             Optional<Long> minInterval = dataAnalyser.minimumIntervalBetweenData(dataForAddress);
-            if (minInterval.isPresent() && minInterval.get() > minIntervalMinutes())
+            if (minInterval.isPresent() && minInterval.get() > minIntervalMinutes)
             {
                 populateHostRow(sb, e);
                 found = true;

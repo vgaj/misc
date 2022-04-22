@@ -15,6 +15,7 @@ public class MessageData
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Maximum number of messages to store
+    // TODO: Make configurable
     private final int MSG_COUNT = 10;
 
     // Where the next message will go

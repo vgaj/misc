@@ -10,10 +10,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class PhoneHomeMonitorApplication
 {
+	// TODO: Create RPM
+
 	@Autowired
 	private MonitorTask monitorTask;
 
-	// TODO: Check if this can be built from a clean fetch
 	public static void main(String[] args)
 	{
 		SpringApplication.run(PhoneHomeMonitorApplication.class, args);
