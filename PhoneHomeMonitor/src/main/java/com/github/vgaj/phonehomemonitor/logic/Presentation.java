@@ -48,21 +48,40 @@ public class Presentation
             }
         });
 
-        entries.forEach( e ->
+        entries.forEach( entryForAddress ->
         {
             boolean found = false;
 
             // TODO: Configuration of exactly what to show
 
             // Note that both calls below will sort this list
-            List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(e.getKey());
+            List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(entryForAddress.getKey());
 
-            Optional<Long> minInterval = dataAnalyser.minimumIntervalBetweenData(dataForAddress);
-            if (minInterval.isPresent() && minInterval.get() > minIntervalMinutes)
+            Map<Integer,List<Integer>> intervalsBetweenData = dataAnalyser.getIntervalsBetweenData(dataForAddress);
+            if (intervalsBetweenData.size() > 0 && intervalsBetweenData.entrySet().stream()
+                    .allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes))
             {
-                populateHostRow(sb, e);
+                populateHostRow(sb, entryForAddress);
                 found = true;
-                sb.append("&nbsp;&nbsp; Minimum interval between data: ").append(minInterval.get()).append("<br/>");
+                sb.append("intervals between data: ").append("<br/>");
+                intervalsBetweenData.entrySet().stream()
+                        .sorted((entry1, entry2) ->
+                        {
+                            int size1 = entry1.getValue().size();
+                            int size2 = entry2.getValue().size();
+                            if (size1 > size2) {
+                                return 1;
+                            } else if (size1 == size2) {
+                                return 0;
+                            } else {
+                                return -1;
+                            }
+                        })
+                        .forEach(entry -> sb.append("&nbsp;&nbsp;")
+                                .append(entry.getKey())
+                                .append(" min, ")
+                                .append(entry.getValue().size())
+                                .append(" times<br/>"));
             }
 
             Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);
@@ -70,9 +89,10 @@ public class Presentation
             {
                 if (!found)
                 {
-                    populateHostRow(sb, e);
+                    populateHostRow(sb, entryForAddress);
                 }
                 found = true;
+                sb.append("repeated data sizes: ").append("<br/>");
                 dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
 
             }
@@ -90,6 +110,12 @@ public class Presentation
 
     private void populateHostRow(StringBuffer sb, Map.Entry<RemoteAddress, DataForAddress> e)
     {
-        sb.append(e.getKey().getHostString() + " (" + e.getValue().getTotalBytes() + " total bytes, " + e.getValue().getMinuteBlockCount() + " times)" + "<br/>");
+        sb.append("<b>")
+                .append(e.getKey().getHostString())
+                .append("</b> (")
+                .append(e.getValue().getTotalBytes())
+                .append(" total bytes, ")
+                .append(e.getValue().getMinuteBlockCount())
+                .append(" times) <br/>");
     }
 }

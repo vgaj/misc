@@ -39,25 +39,26 @@ class DataAnalyserTests
 	}
 
 	@Test
-	void minimumInterval()
+	void getIntervals()
 	{
 		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(1L,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(11L,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(21L,100));
+		data.add(new AbstractMap.SimpleEntry<Long, Integer>(11L,100)); // gap = 10
+		data.add(new AbstractMap.SimpleEntry<Long, Integer>(21L,100)); // gap = 10
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(26L,100)); // gap = 5
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(36L,100));
-		Optional<Long> result = new DataAnalyser().minimumIntervalBetweenData(data);
-		assert result.isPresent();
-		assert result.get() == 5;
+		data.add(new AbstractMap.SimpleEntry<Long, Integer>(36L,100)); // gap = 10
+		Map<Integer,List<Integer>> result = new DataAnalyser().getIntervalsBetweenData(data);
+		assert result.size() == 2;
+		assert result.get(5).size() == 1;
+		assert result.get(10).size() == 3;
 	}
 
 	@Test
-	void noMinimumInterval()
+	void oneEntrySoNoIntervals()
 	{
 		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(1L,100));
-		Optional<Long> result = new DataAnalyser().minimumIntervalBetweenData(data);
+		Map<Integer,List<Integer>> result = new DataAnalyser().getIntervalsBetweenData(data);
 		assert result.isEmpty();
 	}
 }

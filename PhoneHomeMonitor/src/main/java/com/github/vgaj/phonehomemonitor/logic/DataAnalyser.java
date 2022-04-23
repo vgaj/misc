@@ -9,6 +9,7 @@ import java.util.*;
 @Component
 public class DataAnalyser
 {
+    // TODO: This is of low interest.  More interesting is if we have intermittent requests at the same frequency that are the same size.  Refactor into the method below.
     public Map<Integer,Integer> getDataOfSameSize(List<Map.Entry<Long, Integer>> dataForAddress)
     {
         Map<Integer,Integer> results = new HashMap<>();
@@ -33,34 +34,31 @@ public class DataAnalyser
         return results;
     }
 
-    public Optional<Long> minimumIntervalBetweenData(List<Map.Entry<Long, Integer>> dataForAddress)
+    public Map<Integer,List<Integer>> getIntervalsBetweenData(List<Map.Entry<Long, Integer>> dataForAddress)
     {
+        // Map interval (minutes) to list to lengths of data at this interval
+        Map<Integer,List<Integer>> results = new HashMap<>();
+
         // TODO: Make a copy of the list.  Not strictly necessary but more correct.
         Collections.sort(dataForAddress, new Comparator<Map.Entry<Long, Integer>>()
         {
             @Override
-            public int compare(Map.Entry<Long, Integer> e1, Map.Entry<Long, Integer> e2) {
+            public int compare(Map.Entry<Long, Integer> e1, Map.Entry<Long, Integer> e2)
+            {
                 return e1.getKey().compareTo(e2.getKey());
-            }
-        });
-        Optional<Long> minimumInterval = Optional.empty();
-        long lastRequest = -1;
+            }});
 
+        long lastRequest = -1;
         for (var e : dataForAddress)
         {
             if (lastRequest != -1)
             {
-                long interval = e.getKey() - lastRequest;
-                // TODO: Keep track of number of times at this minimum
-                // TODO: Maybe work out the number of times at each frequency
-                // TODO: Calculate average (or most common interval)
-                if (minimumInterval.isEmpty() || interval < minimumInterval.get())
-                {
-                    minimumInterval = Optional.of(interval);
-                }
+                int interval = (int) (e.getKey() - lastRequest);
+                results.putIfAbsent(interval, new ArrayList<>());
+                results.get(interval).add(e.getValue());
             }
             lastRequest = e.getKey();
         }
-        return minimumInterval;
+        return results;
     }
 }
