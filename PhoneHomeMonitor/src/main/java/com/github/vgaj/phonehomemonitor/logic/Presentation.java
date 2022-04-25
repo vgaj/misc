@@ -22,6 +22,8 @@ public class Presentation
     @Autowired
     private DataAnalyser dataAnalyser;
 
+    // TODO: Move business logic out, including use of config parameters
+
     // TODO: Move to YAML configuration?
     @Value("${phm.minimum.interval.minutes}")
     private Integer minIntervalMinutes;
@@ -50,8 +52,6 @@ public class Presentation
 
         entries.forEach( entryForAddress ->
         {
-            boolean found = false;
-
             // TODO: Configuration of exactly what to show
 
             // Note that both calls below will sort this list
@@ -62,7 +62,6 @@ public class Presentation
                     .allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes))
             {
                 populateHostRow(sb, entryForAddress);
-                found = true;
                 sb.append("intervals between data: ").append("<br/>");
                 intervalsBetweenData.entrySet().stream()
                         .sorted((entry1, entry2) ->
@@ -82,24 +81,22 @@ public class Presentation
                                 .append(" min, ")
                                 .append(entry.getValue().size())
                                 .append(" times<br/>"));
-            }
+                // TODO: Check if all are the same size
 
-            Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);
-            if (dataOfSameSize.size() > 0)
-            {
-                if (!found)
+                // TODO: Exclude frequency of 1 via config
+
+                // Note that we are only looking at repeats sizes if there are large intervals
+                Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);
+                if (dataOfSameSize.size() > 0)
                 {
-                    populateHostRow(sb, entryForAddress);
+                    sb.append("repeated data sizes: ").append("<br/>");
+                    dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
                 }
-                found = true;
-                sb.append("repeated data sizes: ").append("<br/>");
-                dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
+                // TODO: Add config with option not to show this
+                sb.append("all data: ").append("<br/>");
+                sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay());
+            }
 
-            }
-            if (found)
-            {
-                //sb.append(e.getValue().getPerMinuteDataForDisplay());
-            }
         });
 
         // The messages

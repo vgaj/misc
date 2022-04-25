@@ -35,7 +35,14 @@ public class DataForAddress
     public String getPerMinuteDataForDisplay()
     {
         StringBuilder sb = new StringBuilder();
-        byteCountPerMinute.entrySet().forEach(e -> sb.append(e.getKey()).append(':').append(e.getValue()).append("<br/>").append(System.lineSeparator()));
+        // TODO: Show real local time
+        byteCountPerMinute.entrySet()
+                .stream()
+                .sorted((e1, e2) -> ((Long) e1.getKey()).compareTo(((Long) e2.getKey())))
+
+
+                .forEach(e -> sb.append("&nbsp;&nbsp;").append(e.getKey()).append(':').append(e.getValue()).append("<br/>").append(System.lineSeparator()));
         return sb.toString();
     }
+
 }

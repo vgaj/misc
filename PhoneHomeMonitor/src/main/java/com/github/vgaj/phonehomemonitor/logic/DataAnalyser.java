@@ -9,7 +9,6 @@ import java.util.*;
 @Component
 public class DataAnalyser
 {
-    // TODO: This is of low interest.  More interesting is if we have intermittent requests at the same frequency that are the same size.  Refactor into the method below.
     public Map<Integer,Integer> getDataOfSameSize(List<Map.Entry<Long, Integer>> dataForAddress)
     {
         Map<Integer,Integer> results = new HashMap<>();
