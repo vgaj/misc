@@ -32,15 +32,16 @@ public class DataForAddress
         return new ArrayList<>(byteCountPerMinute.entrySet());
     }
 
-    public String getPerMinuteDataForDisplay()
+    public String getPerMinuteDataForDisplay(int countToShow)
     {
         StringBuilder sb = new StringBuilder();
         // TODO: Show real local time
-        byteCountPerMinute.entrySet()
-                .stream()
+        var data = byteCountPerMinute.entrySet();
+        int dataLength = data.size();
+        data.stream()
                 .sorted((e1, e2) -> ((Long) e1.getKey()).compareTo(((Long) e2.getKey())))
-
-
+                .skip( countToShow < dataLength ? dataLength - countToShow : 0)
+                .limit( countToShow)
                 .forEach(e -> sb.append("&nbsp;&nbsp;").append(e.getKey()).append(':').append(e.getValue()).append("<br/>").append(System.lineSeparator()));
         return sb.toString();
     }

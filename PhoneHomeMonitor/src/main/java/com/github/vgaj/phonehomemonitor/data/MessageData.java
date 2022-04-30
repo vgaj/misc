@@ -2,6 +2,7 @@ package com.github.vgaj.phonehomemonitor.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,32 +16,42 @@ public class MessageData
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Maximum number of messages to store
-    // TODO: Make configurable
-    private final int MSG_COUNT = 10;
+    @Value("${phm.display.message.count}")
+    private Integer maxMessagesToShow;
 
     // Where the next message will go
     private int msgIndex = 0;
 
     // The ring buffer of messages
-    private final String[] messages = new String[MSG_COUNT];
+    private String[] messages = null;
+
+    public void ensureBufferInitialised()
+    {
+        if (messages == null)
+        {
+            messages = new String[maxMessagesToShow];
+        }
+    }
 
     public void addMessage(String msg)
     {
         logger.info(msg);
+        ensureBufferInitialised();
         messages[msgIndex] = msg;
         msgIndex = getNext(msgIndex);
     }
 
     private int getNext(int i)
     {
-        return (i == (MSG_COUNT - 1) ? 0 : i+1);
+        return (i == (maxMessagesToShow - 1) ? 0 : i+1);
     }
 
     public List<String> getMessages()
     {
-        ArrayList<String> results = new ArrayList<>(MSG_COUNT);
+        ensureBufferInitialised();
+        ArrayList<String> results = new ArrayList<>(maxMessagesToShow);
         int i = msgIndex;
-        for (int x = 0; x < MSG_COUNT; x++)
+        for (int x = 0; x < maxMessagesToShow; x++)
         {
             if (messages[i] != null)
             {

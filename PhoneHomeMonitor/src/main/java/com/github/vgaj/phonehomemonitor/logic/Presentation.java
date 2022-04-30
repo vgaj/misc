@@ -28,6 +28,16 @@ public class Presentation
     @Value("${phm.minimum.interval.minutes}")
     private Integer minIntervalMinutes;
 
+    // The minimum number of transmissions at an interval that is of interest
+    @Value("${phm.minimum.count.at.interval}")
+    private Integer minCountAtInterval;
+
+    @Value("${phm.display.maximum.data}")
+    private Integer maxDataToShow;
+
+    @Value("${phm.display.same.size}")
+    private Boolean showSameSizeData;
+
     public String getDisplayContent()
     {
         StringBuffer sb = new StringBuffer();
@@ -52,8 +62,6 @@ public class Presentation
 
         entries.forEach( entryForAddress ->
         {
-            // TODO: Configuration of exactly what to show
-
             // Note that both calls below will sort this list
             List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(entryForAddress.getKey());
 
@@ -64,6 +72,7 @@ public class Presentation
                 populateHostRow(sb, entryForAddress);
                 sb.append("intervals between data: ").append("<br/>");
                 intervalsBetweenData.entrySet().stream()
+                        .filter(e -> minCountAtInterval > 1 ? e.getValue().size() >  minCountAtInterval : true)
                         .sorted((entry1, entry2) ->
                         {
                             int size1 = entry1.getValue().size();
@@ -83,18 +92,19 @@ public class Presentation
                                 .append(" times<br/>"));
                 // TODO: Check if all are the same size
 
-                // TODO: Exclude frequency of 1 via config
-
                 // Note that we are only looking at repeats sizes if there are large intervals
                 Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);
-                if (dataOfSameSize.size() > 0)
+                if (dataOfSameSize.size() > 0 && showSameSizeData)
                 {
                     sb.append("repeated data sizes: ").append("<br/>");
                     dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
                 }
-                // TODO: Add config with option not to show this
-                sb.append("all data: ").append("<br/>");
-                sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay());
+
+                if (maxDataToShow > 0)
+                {
+                    sb.append("last ").append(maxDataToShow).append(" data points: ").append("<br/>");
+                    sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay(maxDataToShow));
+                }
             }
 
         });
