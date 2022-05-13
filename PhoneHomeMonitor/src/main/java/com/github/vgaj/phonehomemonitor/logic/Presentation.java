@@ -75,22 +75,24 @@ public class Presentation
                         .filter(e -> minCountAtInterval > 1 ? e.getValue().size() >  minCountAtInterval : true)
                         .sorted((entry1, entry2) ->
                         {
-                            int size1 = entry1.getValue().size();
-                            int size2 = entry2.getValue().size();
-                            if (size1 > size2) {
-                                return 1;
-                            } else if (size1 == size2) {
-                                return 0;
-                            } else {
-                                return -1;
-                            }
+                            Integer size1 = entry1.getValue().size();
+                            Integer size2 = entry2.getValue().size();
+                            return size1.compareTo(size2);
                         })
                         .forEach(entry -> sb.append("&nbsp;&nbsp;")
                                 .append(entry.getKey())
                                 .append(" min, ")
                                 .append(entry.getValue().size())
                                 .append(" times<br/>"));
-                // TODO: Check if all are the same size
+
+                // TODO: Move business logic out of this class
+
+                // TODO: Check if all (or most) are the same size
+                // TODO: Check if all the same interval (or most)
+                // TODO: Check if average interval is roughly (total run time / number of times)
+                // TODO: Check if last reading is less than 2 x Average interval ago
+
+                // TODO: start capturing data when it is interesting
 
                 // Note that we are only looking at repeats sizes if there are large intervals
                 Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);

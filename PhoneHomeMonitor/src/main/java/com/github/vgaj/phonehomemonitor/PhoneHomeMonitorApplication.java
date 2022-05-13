@@ -12,11 +12,12 @@ public class PhoneHomeMonitorApplication
 {
 	// TODO: Create RPM
 
+	// TODO: Create Systemd service file
+
 	@Autowired
 	private MonitorTask monitorTask;
 
 	public static void main(String[] args)
 	{
 		SpringApplication.run(PhoneHomeMonitorApplication.class, args);
-	}
-}
+	

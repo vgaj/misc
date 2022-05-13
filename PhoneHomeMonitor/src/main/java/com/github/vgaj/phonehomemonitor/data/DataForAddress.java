@@ -1,5 +1,8 @@
 package com.github.vgaj.phonehomemonitor.data;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,15 +38,26 @@ public class DataForAddress
     public String getPerMinuteDataForDisplay(int countToShow)
     {
         StringBuilder sb = new StringBuilder();
-        // TODO: Show real local time
         var data = byteCountPerMinute.entrySet();
         int dataLength = data.size();
         data.stream()
                 .sorted((e1, e2) -> ((Long) e1.getKey()).compareTo(((Long) e2.getKey())))
                 .skip( countToShow < dataLength ? dataLength - countToShow : 0)
                 .limit( countToShow)
-                .forEach(e -> sb.append("&nbsp;&nbsp;").append(e.getKey()).append(':').append(e.getValue()).append("<br/>").append(System.lineSeparator()));
+                .forEach(e -> sb.append("&nbsp;&nbsp;")
+                        .append(getDisplayTime(e.getKey()))
+                        .append(':')
+                        .append(e.getValue())
+                        .append("<br/>")
+                        .append(System.lineSeparator()));
         return sb.toString();
+    }
+
+    private String getDisplayTime(long epochMinute)
+    {
+        Instant instant = Instant.ofEpochSecond(epochMinute * 60);
+        LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
+        return ldt.toString();
     }
 
 }
