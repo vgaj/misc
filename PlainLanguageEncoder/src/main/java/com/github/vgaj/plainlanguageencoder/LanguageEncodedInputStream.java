@@ -22,6 +22,7 @@ import java.util.Optional;
  *     }
  * </pre>
  */
+// TODO: check the javadoc
 public class LanguageEncodedInputStream extends InputStream {
     private static final Logger logger = LogManager.getLogger(LanguageEncodedInputStream.class);
     private InputStream is;

@@ -50,7 +50,9 @@ public class LanguageEncodedOutputStream extends OutputStream {
             if (languageEncodedString != null) {
                 os.write(languageEncodedString.getBytes(StandardCharsets.UTF_8));
                 os.write(" ".getBytes(StandardCharsets.UTF_8));
+                // TODO: add full stop and new paragraph
             } else {
+                // TODO: remove logging and change to exceptions
                 logger.error("Unable to find encode mapping for " + (char) base64Byte);
             }
         }

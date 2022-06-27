@@ -4,7 +4,7 @@ import java.io.*;
 
 public class TestApplication
 {
-    // TODO: Separate this out to it's own project
+    // TODO: separate this out to it's own project
     public static void main(String[] args) throws IOException {
         boolean isEncode = (args.length > 0 && args[0].equals("e"));
         boolean isDecode = (args.length > 0 && args[0].equals("d"));
