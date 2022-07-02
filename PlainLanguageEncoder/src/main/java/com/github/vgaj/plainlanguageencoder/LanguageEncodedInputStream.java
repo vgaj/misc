@@ -1,7 +1,5 @@
 package com.github.vgaj.plainlanguageencoder;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +22,6 @@ import java.util.Optional;
  */
 // TODO: check the javadoc
 public class LanguageEncodedInputStream extends InputStream {
-    private static final Logger logger = LogManager.getLogger(LanguageEncodedInputStream.class);
     private InputStream is;
     private byte[] decodedBytes;
     private int nextBufferReadIndex = 0;
@@ -57,11 +54,9 @@ public class LanguageEncodedInputStream extends InputStream {
                 break;
             }
             Byte base64Byte = decodeMap.get(nextWord.get());
-            if (base64Byte == null) {
-                // This should never occur.  However if it does lets just ignore it.
-                // This means that random words can be added to the encoded content which just get ignored.
-                logger.error("Unable to find decode mapping for " + nextWord.get());
-            } else {
+            // This should never occur.  However, if it does lets just ignore it.
+            // This means that random words can be added to the encoded content which just get ignored.
+            if (base64Byte != null) {
                 base64EncodedBytes[encodedBytesIndex++] = base64Byte;
             }
         }

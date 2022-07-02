@@ -6,8 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Used to decode an output stream.  Example usage:
@@ -22,7 +20,6 @@ import org.apache.logging.log4j.Logger;
  * </pre>
  */
 public class LanguageEncodedOutputStream extends OutputStream {
-    private static final Logger logger = LogManager.getLogger(LanguageEncodedOutputStream.class);
     private OutputStream os;
     final private Map<Byte, String> encodeMap;
 
@@ -52,8 +49,7 @@ public class LanguageEncodedOutputStream extends OutputStream {
                 os.write(" ".getBytes(StandardCharsets.UTF_8));
                 // TODO: add full stop and new paragraph
             } else {
-                // TODO: remove logging and change to exceptions
-                logger.error("Unable to find encode mapping for " + (char) base64Byte);
+                throw new IOException("Unable to find encode mapping for " + (char) base64Byte);
             }
         }
         bufferPosition = 0;
