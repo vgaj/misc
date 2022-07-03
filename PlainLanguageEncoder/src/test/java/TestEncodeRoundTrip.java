@@ -3,6 +3,7 @@ import com.github.vgaj.plainlanguageencoder.LanguageEncodedOutputStream;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class TestEncodeRoundTrip
@@ -36,6 +37,11 @@ public class TestEncodeRoundTrip
     public void roundTripFiveByte() throws IOException {
         byte[] data = {-1, 0, 1, 2, 3};
         roundTripTest(data);
+    }
+    @Test
+    public void roundTripBrownFox() throws IOException {
+        String data = "The quick brown fox jumps over the lazy dog";
+        roundTripTest(data.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test

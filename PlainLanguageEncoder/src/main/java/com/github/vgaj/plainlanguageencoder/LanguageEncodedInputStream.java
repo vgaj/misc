@@ -1,6 +1,5 @@
 package com.github.vgaj.plainlanguageencoder;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -20,18 +19,26 @@ import java.util.Optional;
  *     }
  * </pre>
  */
-// TODO: check the javadoc
 public class LanguageEncodedInputStream extends InputStream {
     private InputStream is;
     private byte[] decodedBytes;
     private int nextBufferReadIndex = 0;
     private final Map<String, Byte> decodeMap;
 
+    /**
+     * Construct a new LanguageEncodedInputStream
+     * @param inputStream the InputStream that it is adding functionality to
+     */
     public LanguageEncodedInputStream(InputStream inputStream) {
         is = inputStream;
         decodeMap = new EncodeData().getDecodeMap();
     }
 
+    /**
+     * Read the next byte from the InputStream
+     * @return value read
+     * @throws IOException
+     */
     @Override
     public int read() throws IOException {
         if (!isThereSomethingToRead()) {
@@ -69,12 +76,12 @@ public class LanguageEncodedInputStream extends InputStream {
         while (true) {
             int nextChar = is.read();
             if (nextChar == -1) {
-                return (wordBuilder.length() > 0) ? Optional.of(wordBuilder.toString()) : Optional.empty();
+                return (wordBuilder.length() > 0) ? Optional.of(wordBuilder.toString().toLowerCase()) : Optional.empty();
             } else if (isALetter(nextChar)) {
                 wordBuilder.append((char) nextChar);
             } else if (wordBuilder.length() > 0) {
                 // Keep reading until it's not a character and something has been read
-                return Optional.of(wordBuilder.toString());
+                return Optional.of(wordBuilder.toString().toLowerCase());
             }
         }
     }
@@ -83,6 +90,10 @@ public class LanguageEncodedInputStream extends InputStream {
         return ((value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z'));
     }
 
+    /**
+     * Close the InputStream
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
         is.close();

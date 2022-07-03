@@ -4,7 +4,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class contains the map used by LanguageEncodedInputStream and LanguageEncodedOutputStream
+ * to encode and decode data.
+ */
 public class EncodeData {
+
+    /**
+     * Map for encoding
+     * @return
+     */
     public Map<Byte, String> getEncodeMap() {
         if (encodeMap == null) {
             initialiseMaps();
@@ -12,6 +21,10 @@ public class EncodeData {
         return encodeMap;
     }
 
+    /**
+     * Map for decoding
+     * @return
+     */
     public Map<String, Byte> getDecodeMap() {
         if (decodeMap == null) {
             initialiseMaps();
@@ -52,7 +65,7 @@ public class EncodeData {
     private final String[] encodeData =
             {
                     "a",
-                    "I",
+                    "i",
                     "be",
                     "of",
                     "to",
