@@ -1,3 +1,26 @@
+/*
+ * MIT License
+
+ * Copyright (c) 2022 Viru Gajanayake
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.github.vgaj.plainlanguageencoder;
 
 import java.io.IOException;
@@ -8,7 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Used to encode an input stream.  Example usage:
+ * This class is used to decode data from an InputStream encoded by {@link LanguageEncodedOutputStream}
+ * Example usage:
  * <pre>
  *     try (InputStream is = new LanguageEncodedInputStream( new BufferedInputStream(new FileInputStream(encodedFilename)));
  *         OutputStream os = new BufferedOutputStream(new FileOutputStream(decodedFilename))) {
@@ -26,7 +50,8 @@ public class LanguageEncodedInputStream extends InputStream {
     private final Map<String, Byte> decodeMap;
 
     /**
-     * Construct a new LanguageEncodedInputStream
+     * Constructs a new LanguageEncodedInputStream which adds functionality to a {@link InputStream}.
+     * For example usage see {@link LanguageEncodedInputStream}
      * @param inputStream the InputStream that it is adding functionality to
      */
     public LanguageEncodedInputStream(InputStream inputStream) {
@@ -35,7 +60,8 @@ public class LanguageEncodedInputStream extends InputStream {
     }
 
     /**
-     * Read the next byte from the InputStream
+     * Decodes the next byte from the InputStream and returns it.
+     * Also see {@link InputStream#read}
      * @return value read
      * @throws IOException
      */
@@ -91,7 +117,7 @@ public class LanguageEncodedInputStream extends InputStream {
     }
 
     /**
-     * Close the InputStream
+     * See {@link InputStream#close()}
      * @throws IOException
      */
     @Override

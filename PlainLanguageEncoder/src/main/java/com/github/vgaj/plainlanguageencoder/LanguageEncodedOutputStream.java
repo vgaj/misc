@@ -1,3 +1,26 @@
+/*
+ * MIT License
+
+ * Copyright (c) 2022 Viru Gajanayake
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.github.vgaj.plainlanguageencoder;
 
 import java.io.IOException;
@@ -8,7 +31,9 @@ import java.util.Base64;
 import java.util.Map;
 
 /**
- * Used to decode an output stream.  Example usage:
+ * This class is used to encode data being written to an OutputStream.
+ * The encoding is similar to Base64 but uses common, short english words.
+ * Example usage:
  * <pre>
  *     try (InputStream is = new BufferedInputStream(new FileInputStream(origFilename));
  *         OutputStream os = new LanguageEncodedOutputStream( new BufferedOutputStream(new FileOutputStream(encFilename)))) {
@@ -24,7 +49,8 @@ public class LanguageEncodedOutputStream extends OutputStream {
     final private Map<Byte, String> encodeMap;
 
     /**
-     * Construct a new LanguageEncodedOutputStream
+     * Constructs a new LanguageEncodedOutputStream which adds functionality to a {@link OutputStream}.
+     * For example usage see {@link LanguageEncodedOutputStream}
      * @param outputStream the OutputStream that it is adding functionality to
      */
     public LanguageEncodedOutputStream(OutputStream outputStream) {
@@ -40,7 +66,8 @@ public class LanguageEncodedOutputStream extends OutputStream {
     private boolean startingNewSentence = true;
 
     /**
-     * Write the byte to the stream
+     * Encodes the byte and writes it to the OutputStream.
+     * Also see {@link OutputStream#write}
      * @param byteToWrite value to write
      * @throws IOException
      */
@@ -90,7 +117,7 @@ public class LanguageEncodedOutputStream extends OutputStream {
     }
 
     /**
-     * Flush this OutputStream
+     * See {@link OutputStream#flush}
      * @throws IOException
      */
     @Override
@@ -100,7 +127,7 @@ public class LanguageEncodedOutputStream extends OutputStream {
     }
 
     /**
-     * Close this OutputStream
+     * See {@link OutputStream#close}
      * @throws IOException
      */
     @Override
