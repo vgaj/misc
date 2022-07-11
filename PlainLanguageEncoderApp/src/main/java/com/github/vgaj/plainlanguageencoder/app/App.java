@@ -1,6 +1,9 @@
 package com.github.vgaj.plainlanguageencoder.app;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+
 import com.github.vgaj.plainlanguageencoder.*;
 import org.apache.logging.log4j.*;
 
@@ -16,19 +19,23 @@ public class App
                 try (InputStream is = new BufferedInputStream( new FileInputStream( args[1]));
                      OutputStream os = new LanguageEncodedOutputStream( new BufferedOutputStream( new FileOutputStream( args[2])))) {
                     logger.info("Encoding {} to {}", args[1], args[2]);
+                    Instant start = Instant.now();
                     int inputData;
                     while ((inputData = is.read()) != -1) {
                         os.write(inputData);
                     }
+                    logger.info("Encoding completed in {} seconds", Duration.between(start,Instant.now()).getSeconds());
                 }
             } else if (isDecode) {
                 try (InputStream is = new LanguageEncodedInputStream( new BufferedInputStream( new FileInputStream( args[1])));
                      OutputStream os = new BufferedOutputStream( new FileOutputStream( args[2]))) {
-                    logger.info("Decoding {} to {}", args[2], args[1]);
+                    logger.info("Decoding {} to {}", args[1], args[2]);
+                    Instant start = Instant.now();
                     int inputData;
                     while ((inputData = is.read()) != -1) {
                         os.write(inputData);
                     }
+                    logger.info("Decoding completed in {} seconds", Duration.between(start,Instant.now()).getSeconds());
                 }
             }
 
