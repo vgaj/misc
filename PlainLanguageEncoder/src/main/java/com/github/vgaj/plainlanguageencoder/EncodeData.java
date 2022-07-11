@@ -61,7 +61,7 @@ public class EncodeData {
 
     }
 
-    // Note this raw dataset has more data than we need
+    // Raw dataset of words that will be used in the encoding.
     private final String[] encodeData =
             {
                     "a",
@@ -125,29 +125,9 @@ public class EncodeData {
                     "old",
                     "yes",
                     "its",
-                    "off",
                     "few",
                     "run",
                     "guy",
                     "lot",
-                    "job",
-                    "bad",
-                    "pay",
-                    "far",
-                    "kid",
-                    "yet",
-                    "hey",
-                    "end",
-                    "sit",
-                    "car",
-                    "ago",
-                    "set",
-                    "win",
-                    "boy",
-                    "add",
-                    "die",
-                    "buy",
-                    "off",
-                    "low",
             };
 }
