@@ -32,6 +32,7 @@ import java.util.Optional;
 
 /**
  * This class is used to decode data from an InputStream encoded by {@link LanguageEncodedOutputStream}
+ * The encoding is similar to Base64 but uses short words.
  * Example usage:
  * <pre>
  *     try (InputStream is = new LanguageEncodedInputStream( new BufferedInputStream(new FileInputStream(encodedFilename)));
@@ -44,13 +45,30 @@ import java.util.Optional;
  * </pre>
  */
 public class LanguageEncodedInputStream extends InputStream {
+
+    /**
+     * The underlying InputStream that encoded data is being read from
+     */
     private InputStream is;
+
+    /**
+     * The bytes that were most recently Base64 decoded
+     */
     private byte[] decodedBytes;
+
+    /**
+     * The current position in decodedBytes
+     */
     private int nextBufferReadIndex = 0;
+
+    /**
+     * Lookup that is used for decoding
+     */
     private final Map<String, Byte> decodeMap;
 
     /**
      * Constructs a new LanguageEncodedInputStream which adds functionality to a {@link InputStream}.
+     * The encoding is similar to Base64 but uses common, short english words.
      * For example usage see {@link LanguageEncodedInputStream}
      * @param inputStream the InputStream that it is adding functionality to
      */
@@ -73,10 +91,18 @@ public class LanguageEncodedInputStream extends InputStream {
         return isThereSomethingToRead() ? Byte.toUnsignedInt(decodedBytes[nextBufferReadIndex++]) : -1;
     }
 
+    /**
+     * Helper that tells if there is decoded data in the buffer to return
+     */
     private boolean isThereSomethingToRead() {
         return (decodedBytes != null && (nextBufferReadIndex < decodedBytes.length));
     }
 
+    /**
+     * Decodes a buffer of 3 bytes.
+     * First words are read and decoded into the Base64 characters to fill the 4 byte buffer.
+     * The result is then Base64 decoded into data ready for the client.
+     */
     private void fillBuffer() throws IOException {
         byte[] base64EncodedBytes = new byte[4];
         int encodedBytesIndex = 0;
@@ -87,7 +113,7 @@ public class LanguageEncodedInputStream extends InputStream {
                 break;
             }
             Byte base64Byte = decodeMap.get(nextWord.get());
-            // This should never occur.  However, if it does lets just ignore it.
+            // This should never occur.  However, if it does let's just ignore it.
             // This means that random words can be added to the encoded content which just get ignored.
             if (base64Byte != null) {
                 base64EncodedBytes[encodedBytesIndex++] = base64Byte;
@@ -97,6 +123,9 @@ public class LanguageEncodedInputStream extends InputStream {
         nextBufferReadIndex = 0;
     }
 
+    /**
+     * Helper to read the next full word from the underlying InputStream
+     */
     private Optional<String> getNextWord() throws IOException {
         StringBuilder wordBuilder = new StringBuilder();
         while (true) {
@@ -112,6 +141,9 @@ public class LanguageEncodedInputStream extends InputStream {
         }
     }
 
+    /**
+     * Helper that tells if a character was read from the InputStream
+     */
     private boolean isALetter(int value) {
         return ((value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z'));
     }

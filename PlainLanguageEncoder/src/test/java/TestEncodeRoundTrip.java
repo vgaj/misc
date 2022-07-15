@@ -29,6 +29,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+/**
+ * Round trip tests where data is encoded and decoded and compared
+ */
 public class TestEncodeRoundTrip
 {
     @Test

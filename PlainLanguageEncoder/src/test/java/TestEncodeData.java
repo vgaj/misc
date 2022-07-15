@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Tests the validity of the map used for encoding
+ */
 public class TestEncodeData
 {
     private Map<Byte, String> encodeMap;

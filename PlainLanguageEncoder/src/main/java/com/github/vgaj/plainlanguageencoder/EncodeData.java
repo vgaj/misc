@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * This class contains the map used by LanguageEncodedInputStream and LanguageEncodedOutputStream
- * to encode and decode data.
+ * to encode and decode data.  It is programmatically generated.
  */
 public class EncodeData {
 
@@ -62,6 +62,7 @@ public class EncodeData {
         int indexIntoEncodeData = 0;
         HashMap<Byte, String> tempEncodeMap = new HashMap<>();
 
+        // Create a mapping for each Base64 character
         for (byte value = 'A'; value <= 'Z'; value++) {
             tempEncodeMap.put(value, encodeData[indexIntoEncodeData++]);
         }
@@ -75,7 +76,6 @@ public class EncodeData {
         tempEncodeMap.put((byte) '/', encodeData[indexIntoEncodeData++]);
         tempEncodeMap.put((byte) '=', encodeData[indexIntoEncodeData++]);
         encodeMap = Collections.unmodifiableMap(tempEncodeMap);
-
 
         // Make decode map
         HashMap<String, Byte> tempDecodeMap = new HashMap<>();

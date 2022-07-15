@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * This class is used to encode data being written to an OutputStream.
- * The encoding is similar to Base64 but uses common, short english words.
+ * The encoding is similar to Base64 but uses short words.
  * Example usage:
  * <pre>
  *     try (InputStream is = new BufferedInputStream(new FileInputStream(origFilename));
@@ -45,8 +45,46 @@ import java.util.Map;
  * </pre>
  */
 public class LanguageEncodedOutputStream extends OutputStream {
-    private OutputStream os;
+
+    /**
+     * The underlying OutputStream that encoded data is written to
+     */
+    private final OutputStream os;
+
+    /**
+     * Lookup that is used for encoding
+     */
     final private Map<Byte, String> encodeMap;
+
+    /**
+     * The buffer of 3 bytes that Base64 encoding will be performed on
+     */
+    private byte[] bufferToWrite = new byte[3];
+
+    /**
+     * The current position in bufferToWrite
+     */
+    private int bufferPosition = 0;
+
+    /**
+     * Number of words since the last full stop
+     */
+    private long wordNumber = 0;
+
+    /**
+     * Number of sentences since the last paragraph
+     */
+    private long sentenceNumber = 0;
+
+    /**
+     * Whether we need a space before the next word that is written
+     */
+    private boolean spaceBeforeNextWord = false;
+
+    /**
+     * Whether we are staring a new sentence
+     */
+    private boolean startingNewSentence = true;
 
     /**
      * Constructs a new LanguageEncodedOutputStream which adds functionality to a {@link OutputStream}.
@@ -57,13 +95,6 @@ public class LanguageEncodedOutputStream extends OutputStream {
         os = outputStream;
         encodeMap = new EncodeData().getEncodeMap();
     }
-
-    private byte[] bufferToWrite = new byte[3];
-    private int bufferPosition = 0;
-    private long wordNumber = 0;
-    private long sentenceNumber = 0;
-    private boolean spaceBeforeNextWord = false;
-    private boolean startingNewSentence = true;
 
     /**
      * Encodes the byte and writes it to the OutputStream.
@@ -79,6 +110,10 @@ public class LanguageEncodedOutputStream extends OutputStream {
         }
     }
 
+    /**
+     * Encodes and flushes a buffer of 3 bytes. Once 3 bytes have been received the buffer is
+     * Base64 encoded and then encoded in words and written to the underlying OutputStream.
+     */
     private void flushBuffer() throws IOException {
         byte[] base64Bytes = Base64.getEncoder().encode(Arrays.copyOfRange(bufferToWrite, 0, bufferPosition));
         for (byte base64Byte : base64Bytes) {
@@ -89,9 +124,11 @@ public class LanguageEncodedOutputStream extends OutputStream {
                 }
                 spaceBeforeNextWord = true;
                 if (startingNewSentence) {
+                    // Capitalise the first word of a new sentence
                     languageEncodedString = languageEncodedString.substring(0,1).toUpperCase() + languageEncodedString.substring(1);
                     startingNewSentence = false;
                 }
+                // The lookup map is in lower case, but "I" is always in upper case.
                 if (languageEncodedString.equals("i")) {
                     languageEncodedString = "I";
                 }
@@ -105,6 +142,7 @@ public class LanguageEncodedOutputStream extends OutputStream {
                     startingNewSentence = true;
                 }
                 if (isEndOfSentence && (sentenceNumber % 10 == 0)) {
+                    // New paragraph
                     os.write(System.lineSeparator().getBytes(StandardCharsets.UTF_8));
                     os.write(System.lineSeparator().getBytes(StandardCharsets.UTF_8));
                     spaceBeforeNextWord = false;
@@ -132,9 +170,14 @@ public class LanguageEncodedOutputStream extends OutputStream {
      */
     @Override
     public void close() throws IOException {
+        // flush and data yet to be written
         flush();
-        os.write(".".getBytes(StandardCharsets.UTF_8));
-        flush();
+
+        // If we weren't at the end of a sentence add a full stop
+        if ((wordNumber % 10) != 0) {
+            os.write(".".getBytes(StandardCharsets.UTF_8));
+            os.flush();
+        }
         os.close();
     }
 }

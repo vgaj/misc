@@ -12,6 +12,10 @@
     <description>A library used to encode/decode to/from a text representation using common English words.</description>
     <url>https://github.com/vgaj/ple</url>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <licenses>
         <license>
             <name>MIT License</name>
