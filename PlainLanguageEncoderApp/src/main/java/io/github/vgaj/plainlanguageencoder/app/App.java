@@ -1,10 +1,10 @@
-package com.github.vgaj.plainlanguageencoder.app;
+package io.github.vgaj.plainlanguageencoder.app;
 
 import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 
-import com.github.vgaj.plainlanguageencoder.*;
+import io.github.vgaj.plainlanguageencoder.*;
 import org.apache.logging.log4j.*;
 
 public class App
