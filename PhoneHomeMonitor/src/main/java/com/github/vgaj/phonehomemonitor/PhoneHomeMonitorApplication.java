@@ -8,8 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class PhoneHomeMonitorApplication
-{
+public class PhoneHomeMonitorApplication {
 	// TODO: Create RPM
 
 	// TODO: Create Systemd service file
@@ -17,7 +16,7 @@ public class PhoneHomeMonitorApplication
 	@Autowired
 	private MonitorTask monitorTask;
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		SpringApplication.run(PhoneHomeMonitorApplication.class, args);
-	
+	}
+}

@@ -91,6 +91,9 @@ public class Presentation
                 // TODO: Check if all the same interval (or most)
                 // TODO: Check if average interval is roughly (total run time / number of times)
                 // TODO: Check if last reading is less than 2 x Average interval ago
+                
+                // TODO: +/- 1 minute should be the same interval
+                // TODO: If same interval + same size is more interesting
 
                 // TODO: start capturing data when it is interesting
 
