@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * This class is responsible for generating the HTML of the result of the analysis
+ * getDisplayContent() returns the full HTML content to display to the user
+ */
 @Component
 public class Presentation
 {
@@ -20,23 +24,12 @@ public class Presentation
     private MessageData messageData;
 
     @Autowired
-    private DataAnalyser dataAnalyser;
-
-    // TODO: Move business logic out, including use of config parameters
+    private Analyser analyser;
 
     // TODO: Move to YAML configuration?
-    @Value("${phm.minimum.interval.minutes}")
-    private Integer minIntervalMinutes;
-
-    // The minimum number of transmissions at an interval that is of interest
-    @Value("${phm.minimum.count.at.interval}")
-    private Integer minCountAtInterval;
-
     @Value("${phm.display.maximum.data}")
     private Integer maxDataToShow;
 
-    @Value("${phm.display.same.size}")
-    private Boolean showSameSizeData;
 
     public String getDisplayContent()
     {
@@ -62,56 +55,28 @@ public class Presentation
 
         entries.forEach( entryForAddress ->
         {
-            // Note that both calls below will sort this list
-            List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(entryForAddress.getKey());
-
-            Map<Integer,List<Integer>> intervalsBetweenData = dataAnalyser.getIntervalsBetweenData(dataForAddress);
-            if (intervalsBetweenData.size() > 0 && intervalsBetweenData.entrySet().stream()
-                    .allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes))
-            {
+            Analyser.AnalysisResult result = analyser.analyse(entryForAddress);
+            if (result.isCriteriaMatch()) {
                 populateHostRow(sb, entryForAddress);
-                sb.append("intervals between data: ").append("<br/>");
-                intervalsBetweenData.entrySet().stream()
-                        .filter(e -> minCountAtInterval > 1 ? e.getValue().size() >  minCountAtInterval : true)
-                        .sorted((entry1, entry2) ->
-                        {
-                            Integer size1 = entry1.getValue().size();
-                            Integer size2 = entry2.getValue().size();
-                            return size1.compareTo(size2);
-                        })
-                        .forEach(entry -> sb.append("&nbsp;&nbsp;")
-                                .append(entry.getKey())
-                                .append(" min, ")
-                                .append(entry.getValue().size())
-                                .append(" times<br/>"));
-
-                // TODO: Move business logic out of this class
-
-                // TODO: Check if all (or most) are the same size
-                // TODO: Check if all the same interval (or most)
-                // TODO: Check if average interval is roughly (total run time / number of times)
-                // TODO: Check if last reading is less than 2 x Average interval ago
-                
-                // TODO: +/- 1 minute should be the same interval
-                // TODO: If same interval + same size is more interesting
-
-                // TODO: start capturing data when it is interesting
-
-                // Note that we are only looking at repeats sizes if there are large intervals
-                Map<Integer,Integer> dataOfSameSize = dataAnalyser.getDataOfSameSize(dataForAddress);
-                if (dataOfSameSize.size() > 0 && showSameSizeData)
-                {
-                    sb.append("repeated data sizes: ").append("<br/>");
-                    dataOfSameSize.entrySet().forEach(e1 -> sb.append("&nbsp;&nbsp;").append(e1.getKey()).append(" bytes ").append(e1.getValue()).append(" times<br/>"));
+                if (result.getIntervalsBetweenData().size() > 0) {
+                    sb.append("intervals between data: ").append("<br/>");
+                    result.getIntervalsBetweenData().forEach(r ->
+                            sb.append("&nbsp;&nbsp;")
+                                    .append(r)
+                                    .append("<br/>"));
                 }
-
-                if (maxDataToShow > 0)
-                {
+                if (result.getRepeatedDataSizes().size() > 0) {
+                    sb.append("repeated data sizes: ").append("<br/>");
+                    result.getRepeatedDataSizes().forEach(r ->
+                            sb.append("&nbsp;&nbsp;")
+                                    .append(r)
+                                    .append("<br/>"));
+                }
+                if (maxDataToShow > 0) {
                     sb.append("last ").append(maxDataToShow).append(" data points: ").append("<br/>");
                     sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay(maxDataToShow));
                 }
             }
-
         });
 
         // The messages
