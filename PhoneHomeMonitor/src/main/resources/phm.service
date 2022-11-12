@@ -1,0 +1,10 @@
+[Unit]
+Description=Phone Home Monitor
+After=network.target auditd.service
+
+[Service]
+ExecStart=/usr/bin/java -jar /opt/phm/phonehomemonitor-0.0.1-SNAPSHOT.jar
+
+[Install]
+WantedBy=multi-user.target
+

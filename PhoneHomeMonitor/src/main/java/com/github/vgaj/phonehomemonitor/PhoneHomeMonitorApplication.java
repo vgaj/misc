@@ -9,10 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class PhoneHomeMonitorApplication {
-	// TODO: Create RPM
-
-	// TODO: Create Systemd service file
-
 	@Autowired
 	private MonitorTask monitorTask;
 
