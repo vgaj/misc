@@ -1,8 +1,6 @@
 package com.github.vgaj.phonehomemonitor.logic;
 
 import com.github.vgaj.phonehomemonitor.data.MessageData;
-import com.github.vgaj.phonehomemonitor.data.MonitorData;
-import com.github.vgaj.phonehomemonitor.util.PcapPacketHelper;
 import org.pcap4j.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +18,11 @@ import static org.pcap4j.core.PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
 @Component
 public class MonitorTask implements Runnable
 {
-    boolean DEBUG_LOG = false;
-
-    @Autowired
-    private MonitorData monitorData;
-
     @Autowired
     private MessageData messageData;
+
+    @Autowired
+    private NewDataProcessor newDataProcessor;
 
     private Thread monitorThread;
 
@@ -89,22 +85,8 @@ public class MonitorTask implements Runnable
 
             messageData.addMessage("Using filter: " + filter);
             handle.setFilter(filter, BpfProgram.BpfCompileMode.OPTIMIZE);
+            PacketListener listener = pcapPacket -> { newDataProcessor.processNewData(pcapPacket); };
 
-            PacketListener listener =
-                    pcapPacket -> {
-                        PcapPacketHelper pcapHelper = new PcapPacketHelper(pcapPacket);
-                        if (!pcapHelper.isIpv4())
-                        {
-                            messageData.addMessage("Not IPv4");
-                            return;
-                        }
-                        // TODO: Queue on a Disruptor to avoid blocking the caller for too long
-                        if (DEBUG_LOG)
-                        {
-                            messageData.addMessage(pcapHelper.getSourceHost().getAddressString() + " -> " + pcapHelper.getDestHost().getAddressString() + " (" + pcapHelper.getLength() + " bytes)");
-                        }
-                        monitorData.addData(pcapHelper.getDestHost(), pcapHelper.getLength(), pcapHelper.getEpochMinute());
-                    };
             handle.loop(-1, listener);
             handle.close(); // This won't normally get called
         }

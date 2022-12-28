@@ -19,20 +19,14 @@ public class MonitorData
     // Stats for each host
     private final ConcurrentMap<RemoteAddress, DataForAddress> data = new ConcurrentHashMap<>();
 
-    public void populateHostNames()
-    {
-        data.keySet().forEach( k -> {
-            Optional<String> result = k.lookupHostStringIfRequired();
-            if (result.isPresent())
-            {
-                messageData.addMessage("New host: " + result.get());
-            }
-        });
-    }
-
     public void addData(@NonNull RemoteAddress host, int length, long epochMinute)
     {
-        data.putIfAbsent(host, new DataForAddress());
+        if (!data.containsKey(host))
+        {
+            String hostname = host.lookupHost();
+            messageData.addMessage("New host: " + hostname);
+            data.put(host, new DataForAddress());
+        }
         data.get(host).addBytes(length, epochMinute);
     }
 

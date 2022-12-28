@@ -11,7 +11,7 @@
 	<groupId>com.github.vgaj</groupId>
 	<artifactId>phonehomemonitor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>phonehomemonitor</name>
+	<name>Phone Home Monitor</name>
 	<description>Phone Home Monitor</description>
 	<properties>
 		<java.version>11</java.version>
@@ -41,6 +41,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.4.4</version>
 		</dependency>
 	</dependencies>
 

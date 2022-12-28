@@ -51,11 +51,10 @@ public class RemoteAddress
 
     /**
      * If the IP address has not previously been looked up then it is looked up.
-     * @return If it is newly looked up then the value is returned
+     * @return The hostname
      */
-    public Optional<String> lookupHostStringIfRequired()
+    public String lookupHost()
     {
-        Optional<String> result = Optional.empty();
         if (!lookupAttempted)
         {
             lookupAttempted = true;
@@ -65,7 +64,6 @@ public class RemoteAddress
                 hostname = addr.getHostName();
                 if (hostname != null)
                 {
-                    result = Optional.of(hostname);
                     List<String> parts = Arrays.asList(hostname.split("\\."));
                     Collections.reverse(parts);
                     reverseHostname = String.join(".", parts);
@@ -79,7 +77,7 @@ public class RemoteAddress
             }
             hostname += getAddressString();
         }
-        return result;
+        return hostname;
     }
 
     @Override

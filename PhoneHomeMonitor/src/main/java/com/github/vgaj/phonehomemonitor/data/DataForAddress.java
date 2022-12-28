@@ -1,5 +1,7 @@
 package com.github.vgaj.phonehomemonitor.data;
 
+import lombok.AllArgsConstructor;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -41,7 +43,7 @@ public class DataForAddress
         var data = byteCountPerMinute.entrySet();
         int dataLength = data.size();
         data.stream()
-                .sorted((e1, e2) -> ((Long) e1.getKey()).compareTo(((Long) e2.getKey())))
+                .sorted(Comparator.comparing(e -> ((Long) e.getKey())))
                 .skip( countToShow < dataLength ? dataLength - countToShow : 0)
                 .limit( countToShow)
                 .forEach(e -> sb.append("&nbsp;&nbsp;")
