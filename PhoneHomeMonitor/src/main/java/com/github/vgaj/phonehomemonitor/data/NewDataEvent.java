@@ -1,7 +1,6 @@
 package com.github.vgaj.phonehomemonitor.data;
 
 import lombok.Data;
-import lombok.NonNull;
 
 /**
  * Some new data that was captured that needed to be queued for processing

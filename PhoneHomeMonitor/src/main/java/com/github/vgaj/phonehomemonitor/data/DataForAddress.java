@@ -1,7 +1,5 @@
 package com.github.vgaj.phonehomemonitor.data;
 
-import lombok.AllArgsConstructor;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
