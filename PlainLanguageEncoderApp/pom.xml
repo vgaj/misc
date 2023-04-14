@@ -17,20 +17,18 @@
         <repository>
             <id>my-custom-repo-snapshot</id>
             <name>Custom Repo Snapshot</name>
-            <url>http://nexus:8081/repository/maven-snapshots/</url>
+            <url>http://localhost:8081/repository/maven-snapshots/</url>
         </repository>
         <repository>
             <id>my-custom-repo</id>
             <name>Custom Repo</name>
-            <url>http://nexus:8081/repository/maven-releases/</url>
+            <url>http://localhost:8081/repository/maven-releases/</url>
         </repository>
-    -->
-        <!--
-            <repository>
-                <id>sonatype-snapshots</id>
-                <name>Sonatype Snapshots</name>
-                <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-            </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype Snapshots</name>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
     -->
     </repositories>
 
@@ -38,7 +36,7 @@
         <dependency>
             <groupId>io.github.vgaj</groupId>
             <artifactId>plain-language-encoder</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

@@ -40,7 +40,7 @@ public class App
             }
 
         } else {
-            System.out.println("Usage: java -jar xxx.jar [e|d] [Input File] [Output File]");
+            System.out.println("Usage: java -jar xxx.jar [e|d] <input file> <output file>");
         }
     }
 }
