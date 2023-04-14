@@ -56,7 +56,7 @@ public class Presentation
 
         entries.forEach( entryForAddress ->
         {
-            Analyser.AnalysisResult result = analyser.analyse(entryForAddress);
+            Analyser.AnalysisResult result = analyser.analyse(entryForAddress.getKey());
             if (result.isCriteriaMatch()) {
                 populateHostRow(sb, entryForAddress);
                 if (result.getIntervalsBetweenData().size() > 0) {
