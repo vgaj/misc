@@ -55,6 +55,8 @@ public class Analyser
         // TODO: If same interval + same size is more interesting
 
         // TODO: start capturing data when it is interesting
+
+
         if (intervalsBetweenData.size() > 0 && intervalsBetweenData.entrySet().stream()
                 .allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes))
         {

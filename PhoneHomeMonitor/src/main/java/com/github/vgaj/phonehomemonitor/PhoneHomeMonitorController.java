@@ -13,7 +13,8 @@ public class PhoneHomeMonitorController
     @GetMapping("/")
     public String index()
     {
-        // TODO: Periodically generate XML report to a file and format it to HTML to avoid running a web app as root
+        // TODO: Avoid running as root - (1) Periodically generate XML report to a file and format it to HTML
+        // TODO: Avoid running as root - (2) Have a separate web and query the service via a domain socket
         try
         {
             return presentation.getDisplayContent();

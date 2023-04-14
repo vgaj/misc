@@ -30,10 +30,11 @@ public class Presentation
     @Value("${phm.display.maximum.data}")
     private Integer maxDataToShow;
 
-
+    // TODO: Look at Thymeleaf to generate content
     public String getDisplayContent()
     {
         StringBuffer sb = new StringBuffer();
+
 
         // The data
         sb.append("<h3>Unusual Data Sent to Hosts</h3>");
