@@ -1,32 +1,21 @@
 package com.github.vgaj.phonehomemonitor.logic;
 
-import com.github.vgaj.phonehomemonitor.data.DataForAddress;
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: comment classes
 @Component
 public class Analyser
 {
-    @Getter
-    public class AnalysisResult
-    {
-        // TODO: Introduce the concept of a score
-        private boolean criteriaMatch;
-        private List<String> intervalsBetweenData = new ArrayList<>();
-        private List<String> repeatedDataSizes = new ArrayList<>();
-    }
-
     @Autowired
     private MonitorData monitorData;
 
-    // TODO: Move to YAML configuration?
     @Value("${phm.minimum.interval.minutes}")
     private Integer minIntervalMinutes;
 
@@ -45,8 +34,11 @@ public class Analyser
     public AnalysisResult analyse(RemoteAddress address)
     {
         AnalysisResult result = new AnalysisResult();
-        result.criteriaMatch = false;
+        result.setMinimalCriteriaMatch(false);
 
+        // List of:
+        //  - time
+        //  - length of data at that time
         // Note that both calls below will sort this list
         List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(address);
 
@@ -62,13 +54,20 @@ public class Analyser
         // data is greater than the configured minimum.
         // This should reduce web browsing traffic getting captured.
         if (intervalsBetweenData.size() > 0 &&
-                intervalsBetweenData.entrySet().stream()
-                        .allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes)) {
-            result.criteriaMatch = true;
+                intervalsBetweenData.entrySet().stream().allMatch(entryForFrequency -> entryForFrequency.getKey() >= minIntervalMinutes))
+        {
+            result.setMinimalCriteriaMatch(true);
 
-            //===========
-            // Criteria 1: Repeated transfers at the same interval
-            intervalsBetweenData.entrySet().stream()
+            //=============
+            // Criteria 1.1: All transfers are at the same interval
+            if (intervalsBetweenData.size() == 1)
+            {
+                result.setAllTransfersAtSameInterval_c11((intervalsBetweenData.entrySet().stream().findFirst().get().getKey()));
+            }
+
+            //=============
+            // Criteria 1.2: Repeated transfers at the same interval
+            List<Map.Entry<Integer,List<Integer>>> sortedEntries = intervalsBetweenData.entrySet().stream()
                     .filter(e -> minCountAtInterval > 1 ? e.getValue().size() > minCountAtInterval : true)
                     .sorted((entry1, entry2) ->
                     {
@@ -76,50 +75,33 @@ public class Analyser
                         Integer size2 = entry2.getValue().size();
                         return size1.compareTo(size2);
                     })
-                    .forEach(entry -> result.intervalsBetweenData.add(entry.getKey() + " min, " + entry.getValue().size() + " times"));
+                    .collect(Collectors.toList());
+            sortedEntries.forEach(entry -> result.addIntervalFrequency_c12(entry.getKey(), entry.getValue().size()));
 
-            //===========
-            // Criteria 2: Repeated transfers of the same size
-            Map<Integer, Integer> dataOfSameSize = getDataOfSameSize(dataForAddress);
-            if (dataOfSameSize.size() > 0 && showSameSizeData) {
-                dataOfSameSize.entrySet().forEach(e1 -> result.repeatedDataSizes.add(e1.getKey() + " bytes " + e1.getValue() + " times"));
-            }
-
-            // TODO: Check if all (or most) are the same size
             // TODO: Check if all the same interval (or most)
             // TODO: Check if average interval is roughly (total run time / number of times)
             // TODO: Check if last reading is less than 2 x Average interval ago
-            // TODO: If same interval + same size is more interesting
+
+            //=============
+            // Criteria 2.1: All data is of the same size
+            Map<Integer, Long> dataFrequencies = getDataSizeFrequenciesFromRaw(dataForAddress);
+            if (dataFrequencies.size() == 1)
+            {
+                int sameSizeBytes = dataFrequencies.entrySet().stream().findFirst().get().getKey();
+                result.setAllDataIsSameSize_c21(sameSizeBytes);
+            }
+            // TODO: Check if all sizes are similar - look at Std Dev
+
+            //=============
+            // Criteria 2.2: Repeated transfers of the same size
+            Map<Integer, Long> dataOfSameSize = getDataOfSameSizeFromRaw(dataForAddress);
+            if (dataOfSameSize.size() > 0 && showSameSizeData)
+            {
+                dataOfSameSize.entrySet().forEach(e1 -> result.addTransferSizeFrequency_c22(e1.getKey(),e1.getValue()));
+            }
+
         }
         return result;
-    }
-
-    /**
-     * Helper to get a map of data length to number of transfers of that length
-     * @param dataForAddress Raw data for the destination
-     */
-    private Map<Integer,Integer> getDataOfSameSize(List<Map.Entry<Long, Integer>> dataForAddress)
-    {
-        Map<Integer,Integer> results = new HashMap<>();
-
-        Collections.sort(dataForAddress, new Comparator<Map.Entry<Long, Integer>>()
-        {
-            @Override
-            public int compare(Map.Entry<Long, Integer> e1, Map.Entry<Long, Integer> e2) {
-                return e1.getValue().compareTo(e2.getValue());
-            }
-        });
-
-        int lastByteCount = -1;
-        for (var e : dataForAddress)
-        {
-            if (e.getValue() == lastByteCount)
-            {
-                results.put(lastByteCount, results.getOrDefault(lastByteCount, 1) + 1);
-            }
-            lastByteCount = e.getValue();
-        }
-        return results;
     }
 
     /**
@@ -151,6 +133,31 @@ public class Analyser
             lastRequest = e.getKey();
         }
         return results;
+    }
+
+    /**
+     * Get a map of data length to number of transfers of that length
+     * @param dataSizes Raw data - data sizes sent to the destination
+     */
+    private Map<Integer,Long> getDataSizeFrequencies(List<Integer> dataSizes)
+    {
+        return dataSizes.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+    }
+    private Map<Integer,Long> getDataSizeFrequenciesFromRaw(List<Map.Entry<Long, Integer>> dataForAddress)
+    {
+        return getDataSizeFrequencies( dataForAddress.stream().map(e -> e.getValue()).collect(Collectors.toList()));
+    }
+
+    /**
+     * Get data of the same size.
+     * Get instances where data of the same size has been sent multiple times
+     * @param dataForAddress Raw data for destination
+     */
+    private Map<Integer,Long> getDataOfSameSizeFromRaw(List<Map.Entry<Long, Integer>> dataForAddress)
+    {
+        List<Integer> dataSizes =  dataForAddress.stream().map(e -> e.getValue()).collect(Collectors.toList());
+        Map<Integer,Long> dataFrequencies = getDataSizeFrequencies(dataSizes);
+        return dataFrequencies.entrySet().stream().filter(e -> e.getValue() > 1).collect(Collectors.toMap(e-> e.getKey(), e -> e.getValue()));
     }
 
 }

@@ -56,25 +56,46 @@ public class Presentation
 
         entries.forEach( entryForAddress ->
         {
-            Analyser.AnalysisResult result = analyser.analyse(entryForAddress.getKey());
-            if (result.isCriteriaMatch()) {
+            AnalysisResult result = analyser.analyse(entryForAddress.getKey());
+            if (result.isMinimalCriteriaMatch())
+            {
                 populateHostRow(sb, entryForAddress);
-                if (result.getIntervalsBetweenData().size() > 0) {
-                    sb.append("intervals between data: ").append("<br/>");
-                    result.getIntervalsBetweenData().forEach(r ->
-                            sb.append("&nbsp;&nbsp;")
-                                    .append(r)
+
+                if (result.areAllIntervalsTheSame_c11())
+                {
+                    sb.append("- all intervals are " + result.getAllTransfersAtSameInterval_c11() + " minutes").append("<br/>");
+                }
+
+                if (result.areSomeIntervalsTheSame_c12())
+                {
+                    sb.append("- intervals between data: ").append("<br/>");
+                    result.getRepeatedIntervalsBetweenData_c12().forEach(r ->
+                            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
+                                    .append(r.getKey())
+                                    .append(" min, ")
+                                    .append(r.getValue())
+                                    .append(" times")
+                                    .append("<br/>"));
+
+                }
+                if (result.areAllTransfersTheSameSize_c21())
+                {
+                    sb.append("- all transfers are " + result.getAllDataIsSameSize_c21() + " bytes").append("<br/>");
+                }
+                if (result.areSomeTransfersTheSameSize_c22())
+                {
+                    sb.append("- repeated data sizes: ").append("<br/>");
+                    result.getRepeatedTransferSizes_c22().forEach(r ->
+                            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
+                                    .append(r.getKey())
+                                    .append(" bytes, ")
+                                    .append(r.getValue())
+                                    .append(" times")
                                     .append("<br/>"));
                 }
-                if (result.getRepeatedDataSizes().size() > 0) {
-                    sb.append("repeated data sizes: ").append("<br/>");
-                    result.getRepeatedDataSizes().forEach(r ->
-                            sb.append("&nbsp;&nbsp;")
-                                    .append(r)
-                                    .append("<br/>"));
-                }
-                if (maxDataToShow > 0) {
-                    sb.append("last ").append(maxDataToShow).append(" data points: ").append("<br/>");
+                if (maxDataToShow > 0)
+                {
+                    sb.append("- last ").append(maxDataToShow).append(" data points: ").append("<br/>");
                     sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay(maxDataToShow));
                 }
             }

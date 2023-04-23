@@ -22,7 +22,7 @@ class DataAnalyserTests
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
 		Analyser analyser = new Analyser();
-		Map<Integer,Integer> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSize",data);
+		Map<Integer,Long> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSizeFromRaw",data);
 		assert result.size() == 2;
 		assert result.get(100) == 2;
 		assert result.get(200) == 3;
@@ -37,7 +37,7 @@ class DataAnalyserTests
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
 		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,300));
 		Analyser analyser = new Analyser();
-		Map<Integer,Integer> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSize",data);
+		Map<Integer,Long> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSizeFromRaw",data);
 		assert result.size() == 0;
 	}
 

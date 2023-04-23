@@ -35,6 +35,7 @@ public class DataForAddress
         return new ArrayList<>(byteCountPerMinute.entrySet());
     }
 
+    // TODO: pull display logic out to a separate class
     public String getPerMinuteDataForDisplay(int countToShow)
     {
         StringBuilder sb = new StringBuilder();
@@ -44,7 +45,7 @@ public class DataForAddress
                 .sorted(Comparator.comparing(e -> ((Long) e.getKey())))
                 .skip( countToShow < dataLength ? dataLength - countToShow : 0)
                 .limit( countToShow)
-                .forEach(e -> sb.append("&nbsp;&nbsp;")
+                .forEach(e -> sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
                         .append(getDisplayTime(e.getKey()))
                         .append(':')
                         .append(e.getValue())
