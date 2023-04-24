@@ -2,6 +2,8 @@ package com.github.vgaj.phonehomemonitor.logic;
 
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
+import com.github.vgaj.phonehomemonitor.result.AnalysisResult;
+import com.github.vgaj.phonehomemonitor.result.AnalysisResultImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,8 +25,8 @@ public class Analyser
     @Value("${phm.minimum.count.at.interval}")
     private Integer minCountAtInterval;
 
-    @Value("${phm.display.same.size}")
-    private Boolean showSameSizeData;
+    @Value("${phm.minimum.count.of.size}")
+    private Integer minCountOfSameSize;
 
     /**
      * This is the logic which analyses the data for a given host
@@ -33,7 +35,7 @@ public class Analyser
      */
     public AnalysisResult analyse(RemoteAddress address)
     {
-        AnalysisResult result = new AnalysisResult();
+        AnalysisResultImpl result = new AnalysisResultImpl();
         result.setMinimalCriteriaMatch(false);
 
         // List of:
@@ -42,10 +44,9 @@ public class Analyser
         // Note that both calls below will sort this list
         List<Map.Entry<Long, Integer>> dataForAddress = monitorData.getCopyOfPerMinuteData(address);
 
-        // Map of interval (minutes) to list to lengths of data at this interval
+        // Map of:
+        // interval (minutes) -> list to lengths of data at this interval
         Map<Integer,List<Integer>> intervalsBetweenData = getIntervalsBetweenData(dataForAddress);
-
-        // TODO: +/- 1 minute should be the same interval
 
         // TODO: start capturing more data when it is interesting
 
@@ -60,32 +61,33 @@ public class Analyser
 
             //=============
             // Criteria 1.1: All transfers are at the same interval
-            if (intervalsBetweenData.size() == 1)
+            if (intervalsBetweenData.size() == 1 &&
+                   intervalsBetweenData.entrySet().stream().findFirst().get().getValue().size() >= minCountAtInterval)
             {
                 result.setAllTransfersAtSameInterval_c11((intervalsBetweenData.entrySet().stream().findFirst().get().getKey()));
             }
 
             //=============
             // Criteria 1.2: Repeated transfers at the same interval
-            List<Map.Entry<Integer,List<Integer>>> sortedEntries = intervalsBetweenData.entrySet().stream()
-                    .filter(e -> minCountAtInterval > 1 ? e.getValue().size() > minCountAtInterval : true)
+            intervalsBetweenData.entrySet().stream()
+                    .filter(e -> e.getValue().size() >= minCountAtInterval)
                     .sorted((entry1, entry2) ->
                     {
                         Integer size1 = entry1.getValue().size();
                         Integer size2 = entry2.getValue().size();
                         return size1.compareTo(size2);
                     })
-                    .collect(Collectors.toList());
-            sortedEntries.forEach(entry -> result.addIntervalFrequency_c12(entry.getKey(), entry.getValue().size()));
+                    .forEach(entry -> result.addIntervalFrequency_c12(entry.getKey(), entry.getValue().size()));
 
-            // TODO: Check if all the same interval (or most)
+            // TODO: Check if most are at same interval
             // TODO: Check if average interval is roughly (total run time / number of times)
             // TODO: Check if last reading is less than 2 x Average interval ago
 
             //=============
             // Criteria 2.1: All data is of the same size
             Map<Integer, Long> dataFrequencies = getDataSizeFrequenciesFromRaw(dataForAddress);
-            if (dataFrequencies.size() == 1)
+            if (dataFrequencies.size() == 1
+                    && dataFrequencies.entrySet().stream().findFirst().get().getKey() >= minCountOfSameSize)
             {
                 int sameSizeBytes = dataFrequencies.entrySet().stream().findFirst().get().getKey();
                 result.setAllDataIsSameSize_c21(sameSizeBytes);
@@ -94,12 +96,11 @@ public class Analyser
 
             //=============
             // Criteria 2.2: Repeated transfers of the same size
+            // Map of transfer size in bytes -> number of transfers
+            // TODO: Introduce types for interval, transfer size, count
             Map<Integer, Long> dataOfSameSize = getDataOfSameSizeFromRaw(dataForAddress);
-            if (dataOfSameSize.size() > 0 && showSameSizeData)
-            {
-                dataOfSameSize.entrySet().forEach(e1 -> result.addTransferSizeFrequency_c22(e1.getKey(),e1.getValue()));
-            }
-
+            dataOfSameSize.entrySet().stream().filter(e -> e.getValue() >= minCountOfSameSize)
+                    .forEach(e -> result.addTransferSizeFrequency_c22(e.getKey(),e.getValue()));
         }
         return result;
     }

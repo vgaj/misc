@@ -4,6 +4,7 @@ import com.github.vgaj.phonehomemonitor.data.DataForAddress;
 import com.github.vgaj.phonehomemonitor.data.MessageData;
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
+import com.github.vgaj.phonehomemonitor.result.AnalysisResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -63,13 +64,13 @@ public class Presentation
 
                 if (result.areAllIntervalsTheSame_c11())
                 {
-                    sb.append("- all intervals are " + result.getAllTransfersAtSameInterval_c11() + " minutes").append("<br/>");
+                    sb.append("- all intervals are " + result.getIntervalOfAllTransfers_c11() + " minutes").append("<br/>");
                 }
 
                 if (result.areSomeIntervalsTheSame_c12())
                 {
                     sb.append("- intervals between data: ").append("<br/>");
-                    result.getRepeatedIntervalsBetweenData_c12().forEach(r ->
+                    result.getRepeatedIntervals_c12().forEach(r ->
                             sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
                                     .append(r.getKey())
                                     .append(" min, ")
@@ -80,7 +81,7 @@ public class Presentation
                 }
                 if (result.areAllTransfersTheSameSize_c21())
                 {
-                    sb.append("- all transfers are " + result.getAllDataIsSameSize_c21() + " bytes").append("<br/>");
+                    sb.append("- all transfers are " + result.getSizeOfAllTransfers_c21() + " bytes").append("<br/>");
                 }
                 if (result.areSomeTransfersTheSameSize_c22())
                 {
