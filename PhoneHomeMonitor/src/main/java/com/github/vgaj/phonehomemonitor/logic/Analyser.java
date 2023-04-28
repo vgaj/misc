@@ -12,7 +12,7 @@ import java.util.*;
 @Component
 public class Analyser
 {
-    //TODO: Analyser unit tests
+    // TODO: Analyser unit tests
 
     @Autowired
     private MonitorData monitorData;

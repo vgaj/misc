@@ -5,6 +5,7 @@ import com.github.vgaj.phonehomemonitor.data.MessageData;
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
 import com.github.vgaj.phonehomemonitor.result.AnalysisResult;
+import com.github.vgaj.phonehomemonitor.result.AnalysisScore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,6 +62,9 @@ public class Presentation
             if (result.isMinimalCriteriaMatch())
             {
                 populateHostRow(sb, entryForAddress);
+
+                // TODO: sort by score
+                sb.append("- score: " + new AnalysisScore(result)).append("<br/>");
 
                 if (result.areAllIntervalsTheSame_c11())
                 {
