@@ -1,5 +1,7 @@
 package com.github.vgaj.phonehomemonitor.data;
 
+import com.github.vgaj.phonehomemonitor.result.TransferSizeBytes;
+import com.github.vgaj.phonehomemonitor.result.TransferTimestamp;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,13 +32,13 @@ public class MonitorData
         data.get(host).addBytes(length, epochMinute);
     }
 
-    public ArrayList<Map.Entry<Long, Integer>> getCopyOfPerMinuteData(RemoteAddress address)
+    public ArrayList<Map.Entry<TransferTimestamp, TransferSizeBytes>> getCopyOfPerMinuteData(RemoteAddress address)
     {
-        ArrayList<Map.Entry<Long, Integer>> entries = new ArrayList<>();
-        data.get(address).getPerMinuteData().forEach(e -> entries.add(e));
+        ArrayList<Map.Entry<TransferTimestamp, TransferSizeBytes>> entries = new ArrayList<>();
+        data.get(address).getPerMinuteData().forEach(e -> entries.add(
+                Map.entry( new TransferTimestamp(e.getKey()), new TransferSizeBytes(e.getValue()))));
         return entries;
     }
-
 
     public ArrayList<Map.Entry<RemoteAddress, DataForAddress>> getCopyOfRawData()
     {

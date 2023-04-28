@@ -12,10 +12,10 @@ public interface AnalysisResult
     boolean areSomeTransfersTheSameSize_c22();
 
 
-    int getIntervalOfAllTransfers_c11();
-    int getSizeOfAllTransfers_c21();
+    TransferIntervalMinutes getIntervalOfAllTransfers_c11();
+    TransferSizeBytes getSizeOfAllTransfers_c21();
 
-    List<Map.Entry<Integer, Integer>> getRepeatedIntervals_c12();
+    List<Map.Entry<TransferIntervalMinutes, TransferCount>> getRepeatedIntervals_c12();
 
-    List<Map.Entry<Integer, Long>> getRepeatedTransferSizes_c22();
+    List<Map.Entry<TransferSizeBytes, TransferCount>> getRepeatedTransferSizes_c22();
 }

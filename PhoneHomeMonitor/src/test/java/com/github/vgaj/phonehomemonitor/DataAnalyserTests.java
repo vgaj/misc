@@ -1,9 +1,12 @@
 package com.github.vgaj.phonehomemonitor;
 
-import com.github.vgaj.phonehomemonitor.logic.Analyser;
+import com.github.vgaj.phonehomemonitor.logic.AnalyserUtil;
+import com.github.vgaj.phonehomemonitor.result.TransferCount;
+import com.github.vgaj.phonehomemonitor.result.TransferIntervalMinutes;
+import com.github.vgaj.phonehomemonitor.result.TransferSizeBytes;
+import com.github.vgaj.phonehomemonitor.result.TransferTimestamp;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -11,60 +14,50 @@ import java.util.*;
 class DataAnalyserTests
 {
 	@Test
-	void dataOfSameSize()
+	void testSizeFrequencies()
 	{
-		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
+		List<Map.Entry<TransferTimestamp, TransferSizeBytes>> data = new ArrayList<>();
 		long time = 1L;
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,300));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
-		Analyser analyser = new Analyser();
-		Map<Integer,Long> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSizeFromRaw",data);
-		assert result.size() == 2;
-		assert result.get(100) == 2;
-		assert result.get(200) == 3;
-	}
-
-	@Test
-	void noDataOfSameSize()
-	{
-		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
-		long time = 1L;
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,200));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(time++,300));
-		Analyser analyser = new Analyser();
-		Map<Integer,Long> result = ReflectionTestUtils.invokeMethod(analyser,"getDataOfSameSizeFromRaw",data);
-		assert result.size() == 0;
+		TransferSizeBytes size1 = new TransferSizeBytes(100);
+		TransferSizeBytes size2 = new TransferSizeBytes(200);
+		TransferSizeBytes size3 = new TransferSizeBytes(300);
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++), size1));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++),size2));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++),size3));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++),size1));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++),size2));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(time++),size2));
+		Map<TransferSizeBytes, TransferCount> result = new AnalyserUtil().getDataSizeFrequenciesFromRaw(data);
+		assert result.size() == 3;
+		assert result.get(size1).getCount() == 2;
+		assert result.get(size2).getCount() == 3;
+		assert result.get(size3).getCount() == 1;
 	}
 
 	@Test
 	void getIntervals()
 	{
-		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(1L,100));
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(11L,100)); // gap = 10
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(21L,100)); // gap = 10
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(26L,100)); // gap = 5
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(36L,100)); // gap = 10
-		Analyser analyser = new Analyser();
-		Map<Integer,List<Integer>> result = ReflectionTestUtils.invokeMethod(analyser,"getIntervalsBetweenData",data);
+		List<Map.Entry<TransferTimestamp, TransferSizeBytes>> data = new ArrayList<>();
+		TransferSizeBytes size1 = new TransferSizeBytes(100);
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(1L),size1));
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(11L),size1)); // gap = 10
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(21L),size1)); // gap = 10
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(26L),size1)); // gap = 5
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(36L),size1)); // gap = 10
+		Map<TransferIntervalMinutes, List<TransferSizeBytes>> result = new AnalyserUtil().getIntervalsBetweenData(data);
 
 		assert result.size() == 2;
-		assert result.get(5).size() == 1;
-		assert result.get(10).size() == 3;
+		assert result.get(new TransferIntervalMinutes(5)).size() == 1;
+		assert result.get(new TransferIntervalMinutes(10)).size() == 3;
 	}
 
 	@Test
 	void oneEntrySoNoIntervals()
 	{
-		List<Map.Entry<Long, Integer>> data = new ArrayList<>();
-		data.add(new AbstractMap.SimpleEntry<Long, Integer>(1L,100));
-		Analyser analyser = new Analyser();
-		Map<Integer,List<Integer>> result = ReflectionTestUtils.invokeMethod(analyser,"getIntervalsBetweenData", data);
+		List<Map.Entry<TransferTimestamp, TransferSizeBytes>> data = new ArrayList<>();
+		TransferSizeBytes size1 = new TransferSizeBytes(100);
+		data.add(new AbstractMap.SimpleEntry<>(new TransferTimestamp(1L),size1));
+		Map<TransferIntervalMinutes, List<TransferSizeBytes>> result = new AnalyserUtil().getIntervalsBetweenData(data);
 		assert result.isEmpty();
 	}
 }
