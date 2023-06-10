@@ -1,6 +1,6 @@
 package com.github.vgaj.phonehomemonitor;
 
-import com.github.vgaj.phonehomemonitor.display.DisplayDataGenerator;
+import com.github.vgaj.phonehomemonitor.display.ModelGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +15,7 @@ import java.util.List;
 public class PhoneHomeMonitorController
 {
     @Autowired
-    private DisplayDataGenerator displayDataGenerator;
+    private ModelGenerator modelGenerator;
 
     @GetMapping("/")
     //public String index(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
@@ -23,7 +23,7 @@ public class PhoneHomeMonitorController
     {
         // TODO: Avoid running as root - (1) Periodically generate XML report to a file and format it to HTML
         // TODO: Avoid running as root - (2) Have a separate web and query the service via a domain socket
-        model.addAttribute("content", displayDataGenerator.getDisplayContent());
+        model.addAttribute("content", modelGenerator.getDisplayContent());
         return "index";
     }
 
@@ -33,7 +33,7 @@ public class PhoneHomeMonitorController
         List<String> data = null;
         try
         {
-            data = displayDataGenerator.getData(InetAddress.getByName(address));
+            data = modelGenerator.getData(InetAddress.getByName(address));
         } catch (Throwable t)
         {
             // TODO log

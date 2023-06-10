@@ -1,23 +1,25 @@
-package com.github.vgaj.phonehomemonitor.logic;
+package com.github.vgaj.phonehomemonitor.display;
 
 import com.github.vgaj.phonehomemonitor.data.DataForAddress;
 import com.github.vgaj.phonehomemonitor.data.MessageData;
 import com.github.vgaj.phonehomemonitor.data.MonitorData;
 import com.github.vgaj.phonehomemonitor.data.RemoteAddress;
+import com.github.vgaj.phonehomemonitor.logic.Analyser;
 import com.github.vgaj.phonehomemonitor.result.AnalysisResult;
 import com.github.vgaj.phonehomemonitor.result.AnalysisScore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.util.*;
 
 /**
- * This class is responsible for generating the HTML of the result of the analysis
- * getDisplayContent() returns the full HTML content to display to the user
+ * This class is responsible for generating the model of the result of the analysis
+ * which can be used to generate the HTML content to display to the user
  */
 @Component
-public class Presentation
+public class ModelGenerator
 {
     @Autowired
     private MonitorData monitorData;
@@ -32,14 +34,15 @@ public class Presentation
     @Value("${phm.display.maximum.data}")
     private Integer maxDataToShow;
 
-    // TODO: Look at Thymeleaf to generate content
-    public String getDisplayContent()
+    /**
+    Generate the content for the main page
+     */
+    public DisplayContent getDisplayContent()
     {
-        StringBuffer sb = new StringBuffer();
-
+        DisplayContent content = new DisplayContent();
+        content.results = new LinkedList<>();
 
         // The data
-        sb.append("<h3>Unusual Data Sent to Hosts</h3>");
         ArrayList<Map.Entry<RemoteAddress, DataForAddress>> entries = monitorData.getCopyOfRawData();
         Collections.sort(entries, new Comparator<Map.Entry<RemoteAddress, DataForAddress>>() {
             @Override
@@ -61,65 +64,61 @@ public class Presentation
             AnalysisResult result = analyser.analyse(entryForAddress.getKey());
             if (result.isMinimalCriteriaMatch())
             {
-                populateHostRow(sb, entryForAddress);
+                DisplayResult displayResult = new DisplayResult();
+                content.results.add(displayResult);
+                displayResult.hostName = entryForAddress.getKey().getHostString();
+                displayResult.ipAddress = entryForAddress.getKey().getAddressString();
+                displayResult.totalBytes = entryForAddress.getValue().getTotalBytes();
+                displayResult.totalTimes = entryForAddress.getValue().getMinuteBlockCount();
 
                 // TODO: sort by score
-                sb.append("- score: " + new AnalysisScore(result)).append("<br/>");
+                displayResult.score = (new AnalysisScore(result)).getScore();
 
                 if (result.areAllIntervalsTheSame_c11())
                 {
-                    sb.append("- all intervals are " + result.getIntervalOfAllTransfers_c11() + " minutes").append("<br/>");
+                    displayResult.resultLines.add( new DisplayResultLine("all intervals are " + result.getIntervalOfAllTransfers_c11() + " minutes"));
                 }
 
                 if (result.areSomeIntervalsTheSame_c12())
                 {
-                    sb.append("- intervals between data: ").append("<br/>");
+                    DisplayResultLine resultLine = new DisplayResultLine("intervals between data:");
                     result.getRepeatedIntervals_c12().forEach(r ->
-                            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
-                                    .append(r.getKey())
-                                    .append(" min, ")
-                                    .append(r.getValue())
-                                    .append(" times")
-                                    .append("<br/>"));
-
+                            resultLine.subMessages.add(r.getKey() + " min, " + r.getValue() + " times"));
+                    displayResult.resultLines.add(resultLine);
                 }
                 if (result.areAllTransfersTheSameSize_c21())
                 {
-                    sb.append("- all transfers are " + result.getSizeOfAllTransfers_c21() + " bytes").append("<br/>");
+                    displayResult.resultLines.add( new DisplayResultLine("all transfers are " + result.getSizeOfAllTransfers_c21() + " bytes"));
                 }
                 if (result.areSomeTransfersTheSameSize_c22())
                 {
-                    sb.append("- repeated data sizes: ").append("<br/>");
+                    DisplayResultLine resultLine = new DisplayResultLine("repeated data sizes:");
                     result.getRepeatedTransferSizes_c22().forEach(r ->
-                            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
-                                    .append(r.getKey())
-                                    .append(" bytes, ")
-                                    .append(r.getValue())
-                                    .append(" times")
-                                    .append("<br/>"));
+                            resultLine.subMessages.add(r.getKey() + " bytes, " + r.getValue() + " times"));
+                    displayResult.resultLines.add( resultLine);
                 }
                 if (maxDataToShow > 0)
                 {
-                    sb.append("- last ").append(maxDataToShow).append(" data points: ").append("<br/>");
-                    sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay(maxDataToShow));
+                    //sb.append("- last ").append(maxDataToShow).append(" data points: ").append("<br/>");
+                    //sb.append(entryForAddress.getValue().getPerMinuteDataForDisplay(maxDataToShow));
                 }
             }
         });
 
         // The messages
-        sb.append("<br/><h3>Last few messages</h3>");
-        messageData.getMessages().stream().forEach(m -> sb.append(m).append("<br/>"));
-        return sb.toString();
+        content.messages = new ArrayList<>();
+        content.messages.addAll(messageData.getMessages());
+
+        return content;
     }
 
-    private void populateHostRow(StringBuffer sb, Map.Entry<RemoteAddress, DataForAddress> e)
+    /**
+     * Generate the data for a given address
+     */
+    public List<String> getData(InetAddress address)
     {
-        sb.append("<b>")
-                .append(e.getKey().getHostString())
-                .append("</b> (")
-                .append(e.getValue().getTotalBytes())
-                .append(" total bytes, ")
-                .append(e.getValue().getMinuteBlockCount())
-                .append(" times) <br/>");
+        return monitorData.getDataForAddress(new RemoteAddress(address)).getPerMinuteDataForDisplay(maxDataToShow);
     }
+
+
 }
