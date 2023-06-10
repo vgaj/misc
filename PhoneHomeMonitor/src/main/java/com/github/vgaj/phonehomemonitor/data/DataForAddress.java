@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class DataForAddress
 {
@@ -35,23 +36,16 @@ public class DataForAddress
         return new ArrayList<>(byteCountPerMinute.entrySet());
     }
 
-    // TODO: pull display logic out to a separate class
-    public String getPerMinuteDataForDisplay(int countToShow)
+    public List<String> getPerMinuteDataForDisplay(int countToShow)
     {
-        StringBuilder sb = new StringBuilder();
         var data = byteCountPerMinute.entrySet();
         int dataLength = data.size();
-        data.stream()
+        return data.stream()
                 .sorted(Comparator.comparing(e -> ((Long) e.getKey())))
                 .skip( countToShow < dataLength ? dataLength - countToShow : 0)
                 .limit( countToShow)
-                .forEach(e -> sb.append("&nbsp;&nbsp;&nbsp;&nbsp;")
-                        .append(getDisplayTime(e.getKey()))
-                        .append(':')
-                        .append(e.getValue())
-                        .append("<br/>")
-                        .append(System.lineSeparator()));
-        return sb.toString();
+                .map(e -> getDisplayTime(e.getKey()) + ':' + e.getValue())
+                .collect(Collectors.toList());
     }
 
     private String getDisplayTime(long epochMinute)

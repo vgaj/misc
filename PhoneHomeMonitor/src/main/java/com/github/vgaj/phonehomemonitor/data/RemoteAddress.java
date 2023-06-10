@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -27,6 +28,15 @@ public class RemoteAddress
         octets[1] = octet2;
         octets[2] = octet3;
         octets[3] = octet4;
+    }
+
+    public RemoteAddress(InetAddress address)
+    {
+        assert address != null && address.getAddress().length == 4;
+        octets[0] = address.getAddress()[0];
+        octets[1] = address.getAddress()[1];
+        octets[2] = address.getAddress()[2];
+        octets[3] = address.getAddress()[3];
     }
 
     public String getAddressString()

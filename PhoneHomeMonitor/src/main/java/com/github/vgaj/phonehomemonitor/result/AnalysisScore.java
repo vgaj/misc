@@ -1,11 +1,14 @@
 package com.github.vgaj.phonehomemonitor.result;
 
+import lombok.Getter;
+
 /**
  * Calculate a store of interest for an Analysis Result
  */
 public class AnalysisScore
 {
-    int score = 0;
+    @Getter
+    private int score = 0;
     public AnalysisScore( AnalysisResult result)
     {
         // TODO: Score logic

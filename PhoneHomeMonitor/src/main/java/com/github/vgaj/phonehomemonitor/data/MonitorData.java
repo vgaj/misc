@@ -46,4 +46,10 @@ public class MonitorData
         data.entrySet().forEach(e -> entries.add(e));
         return entries;
     }
+
+    public DataForAddress getDataForAddress(RemoteAddress address)
+    {
+        // TODO is this safe?
+        return data.get(address);
+    }
 }
