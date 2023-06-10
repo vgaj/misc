@@ -39,6 +39,7 @@ public class PhoneHomeMonitorController
             // TODO log
             data = new ArrayList<>();
         }
+        model.addAttribute("address", address);
         model.addAttribute("content", data);
         return "data";
     }
