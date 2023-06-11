@@ -49,7 +49,6 @@ public class MonitorData
 
     public DataForAddress getDataForAddress(RemoteAddress address)
     {
-        // TODO is this safe?
         return data.get(address);
     }
 }

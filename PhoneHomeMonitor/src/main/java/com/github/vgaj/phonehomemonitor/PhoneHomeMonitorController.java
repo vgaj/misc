@@ -1,6 +1,8 @@
 package com.github.vgaj.phonehomemonitor;
 
 import com.github.vgaj.phonehomemonitor.display.ModelGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +16,7 @@ import java.util.List;
 @Controller
 public class PhoneHomeMonitorController
 {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ModelGenerator modelGenerator;
 
@@ -36,7 +39,7 @@ public class PhoneHomeMonitorController
             data = modelGenerator.getData(InetAddress.getByName(address));
         } catch (Throwable t)
         {
-            // TODO log
+            logger.error("Failed to lookup data for address " + address, t);
             data = new ArrayList<>();
         }
         model.addAttribute("address", address);

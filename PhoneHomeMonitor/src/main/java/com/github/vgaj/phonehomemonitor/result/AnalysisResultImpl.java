@@ -5,9 +5,8 @@ import lombok.Setter;
 
 import java.util.*;
 
-public class AnalysisResultImpl implements AnalysisResult {
-    // TODO: Introduce the concept of a score
-    // TODO: If same interval + same size is more interesting
+public class AnalysisResultImpl implements AnalysisResult
+{
 
     @Getter
     @Setter

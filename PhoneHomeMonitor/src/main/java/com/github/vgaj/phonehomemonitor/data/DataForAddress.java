@@ -12,6 +12,8 @@ public class DataForAddress
 {
     private int totalBytes = 0;
 
+    // TODO: This class needs to be thread safe, but don't need a concurrent map
+
     // Number of bytes in minute blocks
     private final ConcurrentMap<Long, Integer> byteCountPerMinute = new ConcurrentHashMap<>();
 
