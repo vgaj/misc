@@ -1,6 +1,6 @@
 # Description
-This example contains an XDP program which will search all incoming packets for a pattern (byte sequence) and drop them if they match.
-The byte sequence is set from user space.  The user space program sets a FSA in a map which the XDP program uses
+This example contains an XDP program which will search all incoming packets for a pattern (byte sequence) and drop them there is a match.
+The byte sequence is set from user space.  The user space program sets a FSA in a map which the XDP program uses.
 
 ## Compile
 gcc user_space_set_pattern.c -lbpf -lelf -o user_space_set_pattern
